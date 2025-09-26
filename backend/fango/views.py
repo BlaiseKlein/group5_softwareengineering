@@ -8,3 +8,6 @@ from .models import Person
 class PersonView(viewsets.ModelViewSet):
     serializer_class = PersonSerializer
     queryset = Person.objects.all()
+
+class UserView(views.ModelViewSet):
+    
