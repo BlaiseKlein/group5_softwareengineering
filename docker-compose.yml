@@ -2,6 +2,7 @@ services:
  db:
    image: postgres:17
    container_name: fango-post
+   restart: unless-stopped # automatic restarts unless explicit stop with docker stop
    environment:
      POSTGRES_DB: ${DATABASE_NAME}
      POSTGRES_USER: ${DATABASE_USERNAME}
@@ -10,6 +11,8 @@ services:
      - "5432:5432"
    volumes:
      - postgres_data:/var/lib/postgresql/data
+     - img_data:/app/images # images stored separately
+     - audio_data:/app/audio # audio stored separately
    env_file:
      - .env
  
@@ -21,6 +24,8 @@ services:
      - "8000:8000"
    depends_on:
      - db
+   volumes:
+     - ./backend:/app
    environment:
      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY}
      DEBUG: ${DEBUG}
@@ -37,3 +42,5 @@ services:
      - .env
 volumes:
    postgres_data:
+   img_data:
+   audio_data:
