@@ -5,4 +5,16 @@ from .models import AppUser
 class AppUserAdmin(admin.ModelAdmin):
     model = AppUser
 
-admin.site.register(AppUser, AppUserAdmin)
+admin.site.register(AppUser, AppUserAdmin)from django.urls import path, include
+from rest_framework import routers
+from .views import RegisterView, LoginView, UserView, LogoutView, ImageTranslate
+
+router = routers.DefaultRouter()
+
+urlpatterns = [
+    path('register', RegisterView.as_view(), name='register'),
+    path('login', LoginView.as_view(), name='login'),
+    path('user', UserView.as_view(), name='user'),
+    path('logout', LogoutView.as_view(), name='logout'),
+    path('image-translate/', ImageTranslate.as_view(), name="image-translate")
+]
