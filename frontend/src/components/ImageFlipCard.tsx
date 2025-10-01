@@ -1,3 +1,8 @@
+/**
+ * Backside of the card component for the landing page(homepage).
+ * When a user clicks a card image, the card will be fliped and shows corresponding letters.
+ * 
+ */
 import { useState } from "react";
 
 export default function ImageFlipCard({

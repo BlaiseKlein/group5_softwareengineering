@@ -1,3 +1,11 @@
+/**
+ * Likes and Search History for the row 3, landing page(homepage) 
+ * This component shows the data
+ * 
+ * 
+ * TODO:
+ * Implement likes, history data instead of hardcoded one
+ */
 import { useState } from "react";
 import CardMenu from "./CardMenu";
 import ImageFlipCard from "./ImageFlipCard";

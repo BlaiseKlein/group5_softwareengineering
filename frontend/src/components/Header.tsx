@@ -1,3 +1,9 @@
+/**
+ * Basic header that is applied to every page except for the very begginging for new users.
+ * 
+ * TODO:
+ * Apply this component to be rendered.
+ */
 import { Link } from "react-router-dom";
 
 export default function Header() {

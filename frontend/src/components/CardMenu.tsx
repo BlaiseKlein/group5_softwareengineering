@@ -1,4 +1,9 @@
-// import React from "react";
+/**
+ * Likes / History Menu container for the row 3, the landing page(homepage).
+ * 
+ * TODO:
+ * Make sure all letters and components are center-aligned.
+ */
 
 type Tab = "likes" | "history";
 
