@@ -11,6 +11,8 @@ import Login from './login.tsx'
 // import Camera from './translation/camera.tsx'
 // import Processing from './translation/processing.tsx'
 import Result from './translation/result.tsx'
+import Userinfo from './user/userinfo.tsx'
+import UserLearningInfo from './user/userinfo.tsx'
 
 const router = createBrowserRouter([
   // Basic
@@ -22,6 +24,9 @@ const router = createBrowserRouter([
   // {path: "/translation/processing", element: <Processing />},
   {path: "/translation/result", element: <Result />},
 
+  // Userinfo
+  {path: "/user/userinfo", element: <Userinfo />},
+  {path: "/user/userlearninginfo", element: <UserLearningInfo />},
 ]);
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
