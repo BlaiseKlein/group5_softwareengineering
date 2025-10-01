@@ -5,6 +5,7 @@
  */
 import './landing.css';
 import Card from './components/Cards';
+import GalleryPage from './components/GalleryPage';
 
 function Landing() {
   return (
@@ -51,6 +52,8 @@ function Landing() {
     {/* Col3. Likes / Search History */}
     <div className="bg-blue-400 h-24">
       Row 3
+      {/* gallerypage */}
+      <GalleryPage></GalleryPage>
     </div>
   </div>
   )
