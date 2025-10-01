@@ -29,8 +29,15 @@ try at localhost:8000/api/persons
 Run Django shell:
 docker compose run -it django-web python manage.py shell
 
-Run seed script:
+### Run seed script:
+Note that these scripts are normally for fresh databases. There are a few options to seed:
+1. Seed row
 exec(open("fango/insert_mock_data.py").read())
+2. Seed multiple rows
+exec(open("fango/insert_mock_data2.py").read())
+3. Seed edge case data
+exec(open("fango/insert_test_data.py").read())
+run_edge_case_seeding()
 
 ## Confirm data insert was successful:
 
