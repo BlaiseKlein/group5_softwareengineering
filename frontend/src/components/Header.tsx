@@ -5,6 +5,7 @@
  * Apply this component to be rendered.
  */
 import { Link } from "react-router-dom";
+import Logout from "./Auth/Logout";
 
 export default function Header() {
   return (
@@ -14,6 +15,7 @@ export default function Header() {
         <Link to="/landing" className="text-lg font-bold">
           Fango
         </Link>
+        <Logout email="FIXLATER"/>
       </nav>
     </header>
   );

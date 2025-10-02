@@ -13,11 +13,13 @@ import Login from './login.tsx'
 import Result from './translation/result.tsx'
 import Userinfo from './user/userinfo.tsx'
 import UserLearningInfo from './user/userlearninginfo.tsx'
+import RegisterPage from "./register.tsx";
 
 const router = createBrowserRouter([
   // Basic
   {path: "/", element: <Landing />},
   {path: "/login", element: <Login />},
+  {path: "/register", element: <RegisterPage />},
 
   // Translation
   // {path: "/translation/camera", element: <Camera />},
