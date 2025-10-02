@@ -54,8 +54,19 @@ services:
     depends_on:
       - django-web
 
+ redis:
+    image: redis:7
+    container_name: fango-redis
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
 volumes:
    postgres_data:
    img_data:
    audio_data:
+   redis_data:
 
