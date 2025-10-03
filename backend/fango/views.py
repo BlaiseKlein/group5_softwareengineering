@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework import status
 from .models import AppUser
+from .redis_client import redis_client
 import jwt, datetime
 
 SECRET_KEY = os.getenv('TOKEN_SECRET', 'secret')
@@ -37,6 +38,10 @@ class LoginView(APIView):
 
         token = jwt.encode(payload, SECRET_KEY, algorithm='HS256')
         
+        # 60 minutes TTL
+        ttl_seconds = 60 * 60
+        redis_client.setex("user:{user.id}:jwt", ttl_seconds, token)
+
         response = Response()
 
         response.set_cookie(key='jwt', value=token, httponly=True)
@@ -67,6 +72,18 @@ class LogoutView(APIView):
     def post(self, request):
         response = Response()
         response.delete_cookie('jwt')
+
+        token = request.COOKIES.get('jwt')
+        if not token:
+            raise AuthenticationFailed('Unauthenticated')
+
+        try:
+            payload = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
+            user_id = payload['id']
+            ttl_seconds = int(payload['exp'] - datetime.datetime.utcnow().timestamp())
+            redis_client.setex(f"user:{user_id}:jwt", ttl_seconds, "revoked")
+        except (ExpiredSignatureError, InvalidTokenError):
+
         response.data = {
             'message': "success"
         }

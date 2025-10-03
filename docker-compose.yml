@@ -38,6 +38,10 @@ services:
      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
      DATABASE_HOST: ${DATABASE_HOST}
      DATABASE_PORT: ${DATABASE_PORT}
+
+     REDIS_HOST: ${REDIS_HOST}
+     REDIS_PORT: ${REDIS_PORT}
+     REDIS_DB: ${REDIS_DB}
    env_file:
      - .env
 
