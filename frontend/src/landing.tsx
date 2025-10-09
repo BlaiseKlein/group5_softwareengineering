@@ -6,6 +6,7 @@
 import './landing.css';
 import Card from './components/Cards';
 import GalleryPage from './components/GalleryPage';
+import Logout from './components/Logout';
 
 function Landing() {
   return (
@@ -20,8 +21,11 @@ function Landing() {
         <div className="flex">
           Quick Guide
         </div>
-       
       
+        <div className="absolute top-4 right-4 z-50">
+          <Logout />
+        </div>
+
         {/* Row2. Target language */}
         <div className="flex">
           Target Language
@@ -56,6 +60,7 @@ function Landing() {
       <GalleryPage></GalleryPage>
     </div>
   </div>
+
   )
 }
 
