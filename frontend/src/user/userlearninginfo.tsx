@@ -3,37 +3,64 @@
  * 
  * TODO:
  * Connect with DB
- * Avata size adjustment
- * Make a cancel button
- * Replace inline editor with a modal/select later.
- * Learning Row function: should it be nested function? ask intructor
- * Add clear button, back button
+ * Add + button for 3rd or 4th languages
+ * 
  */
 import React, { useRef, useState } from "react";
-import { Camera, Pencil, Info } from "lucide-react"; 
+import { Camera } from "lucide-react";
+
+// Disgusting....
+// ISO 639-1 language names 
+const LANGUAGES = [
+  "Afrikaans","Akan","Albanian","Amharic","Arabic","Armenian","Assamese","Aymara","Azerbaijani",
+  "Bambara","Basque","Belarusian","Bengali","Bosnian","Breton","Bulgarian","Burmese",
+  "Catalan","Cebuano","Chamorro","Chechen","Chinese (Mandarin)","Chuvash","Cornish","Corsican","Croatian","Czech",
+  "Danish","Dhivehi","Dutch","Dzongkha",
+  "English","Esperanto","Estonian",
+  "Faroese","Fijian","Finnish","French","Frisian (Western)",
+  "Galician","Georgian","German","Greek","Guarani","Gujarati",
+  "Haitian Creole","Hausa","Hawaiian","Hebrew","Hindi","Hmong","Hungarian",
+  "Icelandic","Igbo","Ilocano","Indonesian","Irish","Italian",
+  "Japanese","Javanese",
+  "Kannada","Kazakh","Khmer","Kinyarwanda","Korean","Kurdish (Kurmanji)","Kurdish (Sorani)","Kyrgyz",
+  "Lao","Latin","Latvian","Lingala","Lithuanian","Luganda","Luxembourgish",
+  "Macedonian","Maithili","Malagasy","Malay","Malayalam","Maltese","Maori","Marathi","Meiteilon (Manipuri)","Mongolian",
+  "Nepali","Norwegian Bokmål","Norwegian Nynorsk",
+  "Odia (Oriya)","Oromo","Ossetian",
+  "Pashto","Persian (Farsi)","Polish","Portuguese","Punjabi (Gurmukhi)","Punjabi (Shahmukhi)",
+  "Quechua",
+  "Romanian","Russian",
+  "Samoan","Sanskrit","Scots Gaelic","Serbian","Sesotho","Shona","Sindhi","Sinhala","Slovak","Slovenian","Somali","Spanish","Sundanese","Swahili","Swedish",
+  "Tagalog","Tahitian","Tajik","Tamil","Tatar","Telugu","Thai","Tibetan","Tigrinya","Tok Pisin","Turkish","Turkmen",
+  "Uighur","Ukrainian","Urdu","Uyghur","Uzbek",
+  "Vietnamese",
+  "Welsh","Wolof",
+  "Xhosa",
+  "Yiddish","Yoruba",
+  "Zulu",
+];
+
+const GOAL_OPTIONS = [
+  { key: "business_travel", label: "Business travel" },
+  { key: "touristic_travel", label: "Touristic travel" },
+  { key: "image_translation", label: "Image translation" },
+  { key: "study", label: "Study" },
+  { key: "etc", label: "ETC" },
+] as const;
 
 export default function UserLearningInfo() {
-  type Row = {
-        label: string;        
-        sublabel: string;    
-        key: "language" | "difficulty" | "goal";
-      };
-      
-  // Hardcoded data
-  const ROWS: Row[] = [
-        { key: "language",   label: "Portuguese", sublabel: "Target Language" },
-        { key: "difficulty", label: "Medium",     sublabel: "Quiz difficulty" },
-        { key: "goal",       label: "Travel",     sublabel: "Learning Goal" },
-      ];
-
-  // Hardcoded data
-  const [name, setName] = useState("Melissa peters");
-  const [avatarUrl, setAvatarUrl] = useState("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSmpCWL__69pek5fgjE8HfImGkxYXrKsLdHAg&s"); 
-  const [language, setLanguage] = useState("Portuguese");
-  const [difficulty, setDifficulty] = useState("Medium");
-  const [goal, setGoal] = useState("Travel");
-
+  // Profile header (kept simple)
+  const [name] = useState("Melissa Peters");
+  const [avatarUrl, setAvatarUrl] = useState(
+    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSmpCWL__69pek5fgjE8HfImGkxYXrKsLdHAg&s"
+  );
   const fileRef = useRef<HTMLInputElement | null>(null);
+
+  // Form state
+  const [primaryLang, setPrimaryLang] = useState("Portuguese"); 
+  const [secondaryLang, setSecondaryLang] = useState("");        
+  const [difficulty, setDifficulty] = useState<"Easy" | "Medium" | "Hard">("Medium");
+  const [goals, setGoals] = useState<string[]>(["touristic_travel"]);
 
   function onAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
     const f = e.target.files?.[0];
@@ -42,41 +69,54 @@ export default function UserLearningInfo() {
     setAvatarUrl(url);
   }
 
-  // Tiny inline editor via prompt (quick to wire). Replace with a modal/select later.
-  function editRow(row: Row) {
-    const current =
-      row.key === "language" ? language :
-      row.key === "difficulty" ? difficulty : goal;
+  function toggleGoal(key: string) {
+    setGoals((prev) =>
+      prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]
+    );
+  }
 
-    const next = prompt(`Edit ${row.sublabel}`, current || "");
-    if (next === null) return;
-
-    if (row.key === "language") setLanguage(next.trim() || current);
-    if (row.key === "difficulty") setDifficulty(next.trim() || current);
-    if (row.key === "goal") setGoal(next.trim() || current);
+  function onSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!primaryLang) {
+      alert("Please select your primary learning language.");
+      return;
+    }
+    console.log({
+      primaryLang,
+      secondaryLang: secondaryLang || null,
+      difficulty,
+      goals,
+    });
+    alert("Saved!");
   }
 
   return (
-    <div className="min-h-screen bg-white text-gray-900">
-      {/* Banner with curved bottom */}
-      <div className="relative h-36 w-full overflow-hidden">
+    <div className="min-h-screen mx-auto w-full max-w-[1080px] bg-white text-gray-900">
+      {/* Top banner */}
+      <div className="relative h-36 w-full overflow-visible">
         <div
           className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: "url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSmpCWL__69pek5fgjE8HfImGkxYXrKsLdHAg&s')" }} 
+          style={{
+            backgroundImage:
+              "url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSdiygjJ5zKTyCL0hp0jjWgqmUbQl6J57y27g&s')",
+          }}
           aria-hidden="true"
         />
         <svg
-          className="absolute -bottom-1 left-0 w-full"
+          className="absolute -bottom-1 left-0 w-full z-0"
           viewBox="0 0 1440 120"
           xmlns="http://www.w3.org/2000/svg"
           preserveAspectRatio="none"
           aria-hidden="true"
         >
-          <path d="M0,80 C320,140 1120,0 1440,60 L1440,120 L0,120 Z" fill="white" />
+          <path
+            d="M0,80 C320,140 1120,0 1440,60 L1440,120 L0,120 Z"
+            fill="white"
+          />
         </svg>
 
         {/* Avatar */}
-        <div className="absolute left-1/2 top-[84%] -translate-x-1/2">
+        <div className="absolute left-1/2 bottom-0 -translate-x-1/2 translate-y-1/2 z-10">
           <div className="relative">
             <img
               src={avatarUrl}
@@ -103,77 +143,123 @@ export default function UserLearningInfo() {
       </div>
 
       {/* Content */}
-      <div className="mx-auto max-w-sm px-5 pt-12 pb-24">
-        {/* Name + edit */}
-        <div className="flex items-center justify-center gap-2">
+      <div className="mx-auto max-w-sm px-5 pt-20 pb-20">
+        <div className="mb-6 flex items-center justify-center">
           <h1 className="text-2xl font-semibold text-indigo-900">{name}</h1>
-          <button
-            type="button"
-            className="rounded-full p-1 text-gray-500 hover:bg-gray-100"
-            onClick={() => {
-              const n = prompt("Edit display name:", name);
-              if (n !== null) setName(n);
-            }}
-            aria-label="Edit display name"
-          >
-            <Pencil size={16} />
-          </button>
         </div>
 
-        {/* helper line */}
-        <div className="mt-2 flex items-center justify-center gap-2 text-gray-500">
-          <Info size={14} />
-          <span className="text-sm">Edit your personal info</span>
-        </div>
+        {/* Form */}
+        <form onSubmit={onSubmit} className="space-y-6">
+          {/* Primary language (required) */}
+          <div>
+            <label className="mb-1 block text-sm font-medium">
+              Primary learning language <span className="text-red-500">* Required</span>
+            </label>
+            <select
+              required
+              className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 pr-10 outline-none focus:border-indigo-500"
+              value={primaryLang}
+              onChange={(e) => setPrimaryLang(e.target.value)}
+            >
+              <option value="" disabled>
+                Select a language…
+              </option>
+              {LANGUAGES.map((lang) => (
+                <option key={lang} value={lang}>
+                  {lang}
+                </option>
+              ))}
+            </select>
+          </div>
 
-        {/* Learning rows */}
-        <div className="mt-8 space-y-6 text-center">
-          <LearningRow
-            title={language}
-            subtitle="Target Language"
-            onEdit={() => editRow(ROWS[0])}
-          />
-          <LearningRow
-            title={difficulty}
-            subtitle="Quiz difficulty"
-            onEdit={() => editRow(ROWS[1])}
-          />
-          <LearningRow
-            title={goal}
-            subtitle="Learning Goal"
-            onEdit={() => editRow(ROWS[2])}
-          />
-        </div>
-      </div>
-    </div>
-  );
-}
+          {/* Secondary language (optional) */}
+          <div>
+            <label className="mb-1 block text-sm font-medium">
+              Second learning language (optional)
+            </label>
+            <select
+              className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 pr-10 outline-none focus:border-indigo-500"
+              value={secondaryLang}
+              onChange={(e) => setSecondaryLang(e.target.value)}
+            >
+              <option value="">None</option>
+              {LANGUAGES.map((lang) => (
+                <option key={lang} value={lang}>
+                  {lang}
+                </option>
+              ))}
+            </select>
+          </div>
 
-/** one centered row: Big label + pencil, small gray sublabel */
-function LearningRow({
-  title,
-  subtitle,
-  onEdit,
-}: {
-  title: string;
-  subtitle: string;
-  onEdit: () => void;
-}) {
-  return (
-    <div>
-      <div className="mx-auto inline-flex items-center gap-2">
-        <h2 className="text-xl font-semibold text-indigo-900">{title}</h2>
-        <button
-          type="button"
-          onClick={onEdit}
-          className="rounded-full p-1 text-gray-500 hover:bg-gray-100"
-          aria-label={`Edit ${subtitle}`}
-        >
-          <Pencil size={16} />
-        </button>
-      </div>
-      <div className="mt-1 text-xs uppercase tracking-wide text-gray-500">
-        {subtitle}
+          {/* Consider add + button to add extra languages */}
+
+          {/* Difficulty */}
+          <div>
+            <label className="mb-2 block text-sm font-medium">Difficulty</label>
+            <div className="grid grid-cols-3 gap-2">
+              {(["Easy", "Medium", "Hard"] as const).map((lvl) => (
+                <label
+                  key={lvl}
+                  className={`cursor-pointer rounded-xl border px-4 py-3 text-center ${
+                    difficulty === lvl
+                      ? "border-indigo-500 bg-indigo-50 text-indigo-700"
+                      : "border-gray-200 hover:bg-gray-50"
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name="difficulty"
+                    value={lvl}
+                    checked={difficulty === lvl}
+                    onChange={() => setDifficulty(lvl)}
+                    className="hidden"
+                  />
+                  {lvl}
+                </label>
+              ))}
+            </div>
+          </div>
+
+          {/* Learning goals */}
+          <div>
+            <label className="mb-2 block text-sm font-medium">
+              Learning goals (choose any)
+            </label>
+            <div className="space-y-2">
+              {GOAL_OPTIONS.map((g) => (
+                <label
+                  key={g.key}
+                  className="flex items-center gap-3 rounded-xl border border-gray-200 px-4 py-3 hover:bg-gray-50"
+                >
+                  <input
+                    type="checkbox"
+                    className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                    checked={goals.includes(g.key)}
+                    onChange={() => toggleGoal(g.key)}
+                  />
+                  <span>{g.label}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          {/* Buttons */}
+          <div className="pt-2 flex items-center justify-between gap-3">
+            <button
+              type="button"
+              onClick={() => window.history.back()}
+              className="w-1/2 rounded-full border border-gray-300 bg-white px-5 py-3 font-medium text-gray-700 shadow hover:bg-gray-50 active:translate-y-[1px]"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="w-1/2 rounded-full bg-indigo-600 px-5 py-3 font-medium text-white shadow hover:bg-indigo-700 active:translate-y-[1px]"
+            >
+              Save
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );
