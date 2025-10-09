@@ -13,43 +13,43 @@ import React, { useState } from "react";
 import { Eye, EyeOff } from "lucide-react"; 
 import bcrypt from 'bcryptjs'
 
-export default function LoginPage() {
+export default function RegisterPage() {
   const [id, setId] = useState("");
   const [pw, setPw] = useState("");
   const [showPw, setShowPw] = useState(false);
 
   // to backend team: please replace with auth call
-  const attemptLogin = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
+  const attemptRegister = async (event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault()
 
-    const salt = bcrypt.genSaltSync(10)
-    
-    const hashedPassword = bcrypt.hashSync(event.currentTarget.password.value, '$2a$10$CwTycUXWue0Thq9StjUM0u') 
-    // hash created previously created upon sign up
+        const salt = bcrypt.genSaltSync(10)
+        
+        const hashedPassword = bcrypt.hashSync(event.currentTarget.password.value, '$2a$10$CwTycUXWue0Thq9StjUM0u') 
+        // hash created previously created upon sign up
 
-    let formData = {
-        "email": event.currentTarget.email.value,
-        "password": hashedPassword,
+        let formData = {
+            "email": event.currentTarget.email.value,
+            "password": hashedPassword,
+        }
+        const jsonData = JSON.stringify(formData)
+        console.log(jsonData)
+
+        // TODO: CHANGE THIS URL
+        const data = await fetch(import.meta.env.VITE_SERVER_URL + "/register", {
+            method: "post",
+            headers: { "Content-Type": "application/json" },
+            body: jsonData,
+        });
+
+        const upload_response = await data.json();
+        if (upload_response) {
+            console.log("Successful register attempt");
+            window.location.replace(import.meta.env.VITE_REDIRECT_URL + "login")
+        } else {
+            console.log("Error Found");
+            alert("Register failed")
+        }
     }
-    const jsonData = JSON.stringify(formData)
-    console.log(jsonData)
-
-    // TODO: CHANGE THIS URL
-    const data = await fetch(import.meta.env.VITE_SERVER_URL + "/login", {
-        method: "post",
-        headers: { "Content-Type": "application/json" },
-        body: jsonData,
-    });
-
-    const upload_response = await data.json();
-    if (upload_response['success'] == true) {
-        console.log("Successful login attempt");
-        window.location.replace(import.meta.env.VITE_REDIRECT_URL)
-    } else {
-        console.log("Error Found");
-        alert("Login failed")
-    }
-  }
 
   return (
     <div className="relative min-h-screen bg-white text-gray-900">
@@ -72,7 +72,7 @@ export default function LoginPage() {
         </h1>
 
         {/* Form */}
-        <form onSubmit={attemptLogin} className="space-y-4">
+        <form onSubmit={attemptRegister} className="space-y-4">
           {/* ID */}
           <label className="block">
             <span className="sr-only">ID</span>
@@ -116,15 +116,15 @@ export default function LoginPage() {
               type="submit"
               className="rounded-full bg-sky-500 px-6 py-2.5 text-white font-medium hover:bg-sky-600 active:bg-sky-700 transition"
             >
-              Sign In
+              Sign Up
             </button>
 
             <button
               type="button"
               className="rounded-full border border-sky-500 px-6 py-2.5 text-sky-600 font-medium hover:bg-sky-50 active:bg-sky-100 transition"
-              onClick={() => window.location.replace("http://localhost:3000/register")} //alert("Go to sign-up flow")}
+              onClick={() => window.location.replace("http://localhost:3000/login")} //alert("Go to sign-in flow")}
             >
-              Go To Sign Up
+              Go To Sign In
             </button>
           </div>
         </form>
