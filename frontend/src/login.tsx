@@ -11,7 +11,6 @@
 
 import React, { useState } from "react";
 import { Eye, EyeOff } from "lucide-react"; 
-import bcrypt from 'bcryptjs'
 
 export default function LoginPage() {
   const [id, setId] = useState("");
@@ -22,29 +21,25 @@ export default function LoginPage() {
   const attemptLogin = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
 
-    const salt = bcrypt.genSaltSync(10)
-    
-    const hashedPassword = bcrypt.hashSync(event.currentTarget.password.value, '$2a$10$CwTycUXWue0Thq9StjUM0u') 
-    // hash created previously created upon sign up
-
     let formData = {
         "email": event.currentTarget.email.value,
-        "password": hashedPassword,
+        "password": event.currentTarget.password.value,
     }
     const jsonData = JSON.stringify(formData)
     console.log(jsonData)
 
     // TODO: CHANGE THIS URL
-    const data = await fetch(import.meta.env.VITE_SERVER_URL + "/login", {
+    const data = await fetch('http://localhost:8000/api/login', {
         method: "post",
         headers: { "Content-Type": "application/json" },
+        credentials: 'include',
         body: jsonData,
     });
 
     const upload_response = await data.json();
     if (upload_response['success'] == true) {
         console.log("Successful login attempt");
-        window.location.replace(import.meta.env.VITE_REDIRECT_URL)
+        window.location.replace('http://localhost:3000')
     } else {
         console.log("Error Found");
         alert("Login failed")
