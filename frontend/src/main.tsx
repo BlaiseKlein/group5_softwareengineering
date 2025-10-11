@@ -3,36 +3,50 @@ import ReactDOM from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
 // CSS
-import './index.css'
+import "./index.css";
 
-// Routes
-import Landing from './landing.tsx'
-import Login from './login.tsx'
-import RegisterPage from "./register.tsx";
-import Camera from './translation/camera.tsx'
-// import Processing from './translation/processing.tsx'
-import Result from './translation/result.tsx'
-import Userinfo from './user/userinfo.tsx'
-import UserLearningInfo from './user/userlearninginfo.tsx'
+// Layout
+import AppLayout from "./layout/AppLayout";
+
+// Routes 
+// Basic
+import Landing from "./landing";
+import Login from "./login";
+import RegisterPage from "./register";
+
+// Translation
+import Camera from "./translation/camera";
+import Processing from "./translation/processing";
+import Result from "./translation/result";
+
+// User
+import UserHistory from "./user/userhistory";
+import Userinfo from "./user/userinfo";
+import UserLearningInfo from "./user/userlearninginfo";
 
 const router = createBrowserRouter([
-  // Basic
-  {path: "/", element: <Landing />},
-  {path: "/login", element: <Login />},
-  {path: "/register", element: <RegisterPage />},
+  // For Bottom Nav
+  {
+    element: <AppLayout />,
+    children: [
+      { index: true, element: <Landing /> },                       
+      { path: "translation/camera", element: <Camera /> },
+      { path: "translation/result", element: <Result /> },
+      { path: "user/userhistory", element: <UserHistory /> },
+      { path: "user/userinfo", element: <Userinfo /> },
+      { path: "user/userlearninginfo", element: <UserLearningInfo /> },
+      { path: "*", element: <Landing /> },
+    ],
+  },
 
-  // Translation
-  {path: "/translation/camera", element: <Camera />},
-  // {path: "/translation/processing", element: <Processing />},
-  {path: "/translation/result", element: <Result />},
-
-  // Userinfo
-  {path: "/user/userinfo", element: <Userinfo />},
-  {path: "/user/userlearninginfo", element: <UserLearningInfo />},
+  // Non-bottom nav
+  { path: "/login", element: <Login /> },
+  { path: "/register", element: <RegisterPage /> },
+  { path: "/translation/processing", element: <Processing /> },
 ]);
 
-ReactDOM.createRoot(document.getElementById("root")!).render(
-  <React.StrictMode>
-    <RouterProvider router={router} />
-  </React.StrictMode>
+  ReactDOM.createRoot(document.getElementById("root")!).render(
+    <React.StrictMode>
+      <RouterProvider router={router} />
+    </React.StrictMode>
 );

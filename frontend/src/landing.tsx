@@ -1,7 +1,12 @@
 /**
  * Landing page(homepage) after log-in
  * 
- * Todo: organize margin
+ * Todo: 
+ * Populate dynamic data for username, quiz, search history...
+ * Adjust max w for various screen size (current setting: 1080px)
+ * Connect pages
+ * Make favourite / history text centered
+ * 
  */
 import './landing.css';
 import Card from './components/Cards';
@@ -32,36 +37,51 @@ function Landing() {
         </div>
       </div>
 
-    </div>
+          <div className="mt-2 flex items-center justify-between text-sm text-gray-600">
+            {/* Connect to quick guid page */}
+            <button className="inline-flex items-center gap-1">
+              Quick Guide <span aria-hidden>→</span>
+            </button>
 
-    {/* Col2. Quiz */}
-    <div className="bg-green-400 flex-1 flex">
-      {/* testing grid */}
-      <div className="flex justify-center"> 
-        <Card
-          image="https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcRt_QiKPVzqfwTyHlXu7n9qOb72v9TcdkCVh568x4mFTEhWX7K1Uum-ziPXkK75ZQM0SRLS8ySsQtFuB85WhAaOUPCYr8n3eUKW3BC91XHM"
-          title="Quiz Time!"
-          description="I know you already forgot most of words. Review right now you dumbo"
-        >
-          <button className="mt-2 px-3 py-1">
-            {/* Google Icon */}
-            <span className="material-symbols-outlined">
-              motion_play
-            </span>
-          </button>
-        </Card>
-      </div>
-    </div>
+            {/* Dynamic data needed */}
+            <button className="inline-flex items-center gap-2">
+              <span>Target Language:</span>
+              <span role="img" aria-label="Portuguese flag">🇵🇹</span>
+              <span aria-hidden>✎</span>
+            </button>
+          </div>
+        </section>
 
-    {/* Col3. Likes / Search History */}
-    <div className="bg-blue-400 h-24">
-      Row 3
-      {/* gallerypage */}
-      <GalleryPage></GalleryPage>
+        {/* Quiz Card */}
+        <section className="mt-6">
+          <div className="overflow-hidden rounded-3xl bg-gray-100 shadow">
+            <Card
+              image="https://yt3.googleusercontent.com/8cgZMlfbExlkCdKjgJjxmHqa80xJ6WByNIbayrhS3AN3TbumcJO3TnujIq61nYh9vZWWMW7eUg=s900-c-k-c0x00ffffff-no-rj"
+              title="Quiz Time!: Build Your Stack"
+              description="I feel sleepy......I know you're also sleepy...."
+            >
+              <button
+                className="mt-2 grid h-12 w-12 place-items-center rounded-full bg-gray-900 text-white"
+                aria-label="Play"
+              >
+                ▶
+              </button>
+            </Card>
+          </div>
+        </section>
+
+        {/* Likes / Search history */}
+        <section className="mt-7">
+          {/* text-center doesn't work... */}
+          <div className="mt-4">
+            <GalleryPage />
+          </div>
+        </section>
+      </main>
     </div>
   </div>
 
   )
 }
 
-export default Landing
+export default Landing;
