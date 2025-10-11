@@ -52,7 +52,7 @@ class LoginView(APIView):
             "role": user.role,
             "status": user.status,
             "created_at": user.created_at.isoformat() if user.created_at else current_time.isoformat(),
-            "last_login_at": user.last_login_at.isoformat() if user.last_login_at else current_time.isoformat()
+            "last_login_at": current_time.isoformat()
         })
 
         redis_client.expire(f"user:{user.id}:session", ttl_seconds)
