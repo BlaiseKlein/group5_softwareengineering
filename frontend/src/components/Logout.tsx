@@ -3,7 +3,7 @@ export default function Logout() {
     const attemptLogout = async () => {
 
         // TODO: CHANGE THIS URL
-        const data = await fetch('http://localhost:8000/api/logout', {
+        const data = await fetch(import.meta.env.VITE_SERVER_URL + "/logout", {
             method: "post",
             headers: { "Content-Type": "application/json" },
             credentials: 'include'
@@ -12,7 +12,7 @@ export default function Logout() {
         const upload_response = await data.json();
         if (upload_response) {
             console.log("Successful logout attempt");
-            window.location.replace('http://localhost:3000/login')
+            window.location.replace(import.meta.env.VITE_REDIRECT_URL + "/login")
         } else {
             console.log("Error Found");
         }
