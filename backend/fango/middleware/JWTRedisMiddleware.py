@@ -1,6 +1,8 @@
 import os
 import jwt
+from jwt import InvalidSignatureError
 from jwt import InvalidTokenError
+from jwt import DecodeError
 from fango.redis_client import redis_client
 from fango.models import AppUser
 from django.http import JsonResponse
@@ -25,15 +27,19 @@ class JWTRedisMiddleware:
             request.user_id = user_id
             session = redis_client.hgetall(f"user:{user_id}:session")
 
-            if session and session.get(b"jwt") == b"revoked":
-                return JsonResponse({"detail": "Token revoked"}, status=401)
-            
+            if session:
+                jwt_token = session.get("jwt")
+                if jwt_token and jwt_token == "revoked":
+                    return JsonResponse({"detail": "Token revoked"}, status=401)
+                elif not jwt_token:
+                    return JsonResponse({"detail": "Unauthorized"}, status=401)
+
             if session:
                 request.user_info = dict(session)
             else:
                 request.user_info = {}
             
-        except (jwt.ExpiredSignatureError, jwt.InvalidTokenError):
+        except (jwt.ExpiredSignatureError, jwt.InvalidTokenError, jwt.DecodeError, jwt.InvalidSignatureError):
             return JsonResponse({"detail": "Unauthenticated"}, status=401)
 
         return self.get_response(request)

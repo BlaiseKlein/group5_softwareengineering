@@ -1,6 +1,8 @@
 import os
 import jwt
 from jwt import InvalidTokenError
+from jwt import InvalidSignatureError
+from jwt import DecodeError
 from fango.redis_client import redis_client
 from fango.models import AppUser
 from django.http import JsonResponse
@@ -25,8 +27,11 @@ class RateLimitMiddleware:
             user_id = None
             token = request.COOKIES.get("jwt")
             if token:
-                payload = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
-                user_id = payload['id']
+                try:
+                    payload = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
+                    user_id = payload['id']
+                except (jwt.ExpiredSignatureError, jwt.InvalidTokenError, jwt.DecodeError, jwt.InvalidSignatureError):
+                    return JsonResponse({"detail": "Unauthorized"}, status=401)
 
             ip = self.get_client_ip(request)
 
