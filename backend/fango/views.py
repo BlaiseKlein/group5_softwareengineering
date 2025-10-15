@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework import status
 from django.utils import timezone
-from .models import AppUser
+from .models import AppUser, UserHistory, Word, Translation, Language
 from .redis_client import redis_client
 import jwt, datetime
 
@@ -105,4 +105,51 @@ class LogoutView(APIView):
         response.data = {
             'message': "success"
         }
+        return response
+
+class GetUserHistory(APIView):
+    def get(self, request):
+        token = request.COOKIES.get('jwt')
+        language_filter = request.query_params.get('language_filter', None)
+        page = request.query_params.get('page', 1)
+
+        if not token:
+            raise AuthenticationFailed('Unauthenticated')
+
+        try:
+            payload = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
+            user_id = payload['id']
+        except jwt.ExpiredSignatureError:
+            pass
+
+        try:
+            user = AppUser.objects.get(id=user_id)
+        except AppUser.DoesNotExist:
+            print("User not found.")
+
+        try:
+            user_history = UserHistory.objects.filter(user_id=user) 
+        except UserHistory.DoesNotExist:
+            pass
+
+        history_list = []
+        for user_history in user_history:
+            history_object = {
+                'word_english': user_history.translation_id.word_id.label_en,
+                'language': user_history.translation_id.target_lang_id.lang,
+                'word_translated': user_history.translation_id.label_target,
+                'created_at': user_history.created_at,
+                'is_favorite': user_history.is_favorite,
+                'image_url': user_history.img_path
+            }
+
+            history_list.append(history_object)
+
+        response = Response()
+        response.data = {
+            'history': history_list,
+            'next_page_url': ' ',
+            'previous_page_url': ' '
+        }
+
         return response
