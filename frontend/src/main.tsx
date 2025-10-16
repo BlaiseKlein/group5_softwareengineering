@@ -26,6 +26,7 @@ import UserLearningInfo from "./user/userlearninginfo";
 
 // Sign Up
 import SignUpName from "./signup/name";
+import SignUpEmail from "./signup/email";
 import SignUpGoal from "./signup/goal";
 import SignUpTargetLan from "./signup/targetlan";
 import SignUpDifficulty from "./signup/difficulty";
@@ -53,6 +54,7 @@ const router = createBrowserRouter([
   { path: "/register", element: <RegisterPage /> },
   { path: "/translation/processing", element: <Processing /> },
   { path: "/signup/name", element: <SignUpName /> },
+  { path: "/signup/email", element: <SignUpEmail /> },
   { path: "/signup/goal", element: <SignUpGoal /> },
   { path: "/signup/targetlan", element: <SignUpTargetLan /> },
   { path: "/signup/difficulty", element: <SignUpDifficulty /> },
