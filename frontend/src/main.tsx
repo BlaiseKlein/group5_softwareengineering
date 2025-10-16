@@ -31,6 +31,8 @@ import SignUpTargetLan from "./signup/targetlan";
 import SignUpDifficulty from "./signup/difficulty";
 import SignUpAllSet from "./signup/allset";
 
+// Quick Guide
+
 const router = createBrowserRouter([
   // For Bottom Nav
   {
