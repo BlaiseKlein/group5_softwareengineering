@@ -58,9 +58,9 @@ const router = createBrowserRouter([
   { path: "/signup/name", element: <SignUpName /> },
   { path: "/signup/email", element: <SignUpEmail /> },
   { path: "/signup/password", element: <SignUpPassword /> },
+  { path: "/signup/targetlan", element: <SignUpTargetLan /> },
   
   { path: "/signup/goal", element: <SignUpGoal /> },
-  { path: "/signup/targetlan", element: <SignUpTargetLan /> },
   { path: "/signup/difficulty", element: <SignUpDifficulty /> },
   { path: "/signup/difficulty", element: <SignUpAllSet /> },
 ]);
