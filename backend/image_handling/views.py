@@ -7,6 +7,7 @@ from rest_framework import status
 from django.conf import settings
 from django.http import FileResponse
 from fango.models import UserHistory, AppUser, Translation
+from .services.openai_service import get_translation
 
 class ImageTranslate(APIView):
 
@@ -37,8 +38,8 @@ class ImageTranslate(APIView):
         frontend_path = request.build_absolute_uri(settings.MEDIA_URL + db_path)
 
         # Get user and translation
-        user = AppUser.objects.get(id=1)
-        translation = Translation.objects.get(id=1)
+        user = AppUser.objects.get(id=22)
+        translation = Translation.objects.get(id=64)
         
 
         # Save image to userhistory in database
