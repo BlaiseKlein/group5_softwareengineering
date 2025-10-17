@@ -51,4 +51,4 @@ def get_translation(image_path: str, translation_language: str):
                }]
         )
 
-        print(response)
+        return response.model_dump()
