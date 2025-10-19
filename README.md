@@ -12,6 +12,10 @@ cd ../group5_softwareengineering/
 ## First time running:
 
 docker compose up --build
+
+Remember to makemigrations if schema changed with:
+docker compose run django-web python manage.py makemigrations
+
 docker compose run django-web python manage.py migrate
 
 ## Starting container after first time:
