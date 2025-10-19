@@ -27,7 +27,7 @@ export default function Login() {
     
         let formData = {
             "email": event.currentTarget.email.value,
-            "password": event.currentTarget.password.value,
+            "password": event.currentTarget.password.value
         }
         const jsonData = JSON.stringify(formData)
         console.log(jsonData)
@@ -42,6 +42,9 @@ export default function Login() {
     
         const upload_response = await data.json();
         if (upload_response['success'] == true) {
+            // TODO: temporary cookie fix
+            localStorage.setItem("jwt", upload_response["jwt"]);
+            // ---
             console.log("Successful login attempt");
             window.location.replace(import.meta.env.VITE_REDIRECT_URL)
         } else {
