@@ -31,6 +31,7 @@ export default function Login() {
         const data = await fetch(import.meta.env.VITE_SERVER_URL + "/login", {
             method: "post",
             headers: { "Content-Type": "application/json" },
+            credentials: 'include',
             body: jsonData,
         });
     
@@ -38,7 +39,7 @@ export default function Login() {
         if (upload_response['success'] == true) {
             // localStorage.setItem("jwt", upload_response["jwt"]);
             console.log("Successful login attempt");
-            // window.location.replace(import.meta.env.VITE_REDIRECT_URL)
+            window.location.replace(import.meta.env.VITE_REDIRECT_URL)
         } else {
             console.log("Error Found");
             alert("Login failed");
