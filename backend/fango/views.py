@@ -61,7 +61,8 @@ class LoginView(APIView):
 
         response = Response()
 
-        response.set_cookie(key='jwt', value=token, httponly=True, secure=True, samesite='None', path='/')
+        response.set_cookie(key='jwt', value=token, httponly=True, secure=False, samesite='None', path='/')
+        # response.set_cookie(key='jwt', value=token, httponly=True)
         response.data = {
             "jwt": token,
             "success": True
@@ -152,6 +153,41 @@ class GetUserHistory(APIView):
             'history': history_list,
             'next_page_url': ' ',
             'previous_page_url': ' '
+        }
+
+        return response
+
+class GetUserInfo(APIView):
+    def get(self, request):
+        token = request.COOKIES.get('jwt')
+        language_filter = request.query_params.get('language_filter', None)
+        page = request.query_params.get('page', 1)
+
+        if not token:
+            raise AuthenticationFailed('Unauthenticated')
+
+        try:
+            payload = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
+            user_id = payload['id']
+        except jwt.ExpiredSignatureError:
+            pass
+
+        try:
+            user = AppUser.objects.get(id=user_id)
+        except AppUser.DoesNotExist:
+            print("User not found.")
+
+        try:
+            user_history = UserHistory.objects.filter(user_id=user) 
+        except UserHistory.DoesNotExist:
+            pass
+
+        response = Response()
+        response.data = {
+            'email': 'TestEmail',
+            'default_language': 'SomeLang' ,
+            'country': 'Canada',
+            'name': 'Blaise'
         }
 
         return response

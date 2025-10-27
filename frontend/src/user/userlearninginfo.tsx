@@ -96,7 +96,7 @@ export default function UserLearningInfo() {
     .then(function(json) {
       // use the json
       setName(json.name)
-      setPrimaryLang(json.default_language)
+      setdefaultLang(json.default_language)
     });
   }
 

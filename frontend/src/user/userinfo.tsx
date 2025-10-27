@@ -6,7 +6,7 @@
  * Save changes -> display success message
  * 
  */
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Camera } from "lucide-react"; 
 
 export default function UserInfo() {
@@ -40,6 +40,10 @@ export default function UserInfo() {
       setCountry(json.country)
     });
   }
+
+  useEffect(()=>{
+    request_info();
+  }, [])
 
   return (
     <div className="min-h-screen mx-auto w-full max-w-[1080px] bg-white text-gray-900">
