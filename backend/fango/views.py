@@ -116,6 +116,41 @@ class LogoutView(APIView):
             'message': "success"
         }
         return response
+    
+class GetUserInfo(APIView):
+    def get(self, request):
+        token = request.COOKIES.get('jwt')
+
+        if not token:
+            raise AuthenticationFailed('Unauthenticated')
+        
+        try:
+            payload = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
+            user_id = payload['id']
+        except jwt.ExpiredSignatureError:
+            pass
+
+        try:
+            user = AppUser.objects.get(id=user_id)
+        except AppUser.DoesNotExist:
+            print("User not found.")
+        
+        if user.default_lang_id is not None:
+            default_lang = user.default_lang_id.lang
+        else:
+            default_lang = ""
+
+        response = Response()
+        response.data = {
+            'email': user.email,
+            'default_language': default_lang,
+            'country': user.country,
+            'name': user.name,
+        }
+
+        return response
+
+        
 
 class GetUserHistory(APIView):
     def get(self, request):
