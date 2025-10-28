@@ -5,7 +5,6 @@
  * Populate dynamic data for username, quiz, search history...
  * Adjust max w for various screen size (current setting: 1080px)
  * Connect pages
- * Make favourite / history text centered
  * 
  */
 import './landing.css';
@@ -60,7 +59,6 @@ function Landing() {
 
         {/* Likes / Search history */}
         <section className="mt-7">
-          {/* text-center doesn't work... */}
           <div className="mt-4">
             <GalleryPage />
           </div>

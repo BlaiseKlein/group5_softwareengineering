@@ -49,7 +49,7 @@ export default function SetUpTargetLan() {
 //   };
 
   const submitTargetLan = async (cleanTargetLan: string) => {
-    const redirect = "http://localhost:3000/signup/difficulty";
+    const redirect = "http://localhost:3000/signup/goal";
     window.location.replace(redirect);
   }
 
