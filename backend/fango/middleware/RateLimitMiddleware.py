@@ -38,8 +38,13 @@ class RateLimitMiddleware:
                 try:
                     payload = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
                     user_id = payload['id']
-                except (jwt.ExpiredSignatureError, jwt.InvalidTokenError, jwt.DecodeError, jwt.InvalidSignatureError):
-                    return JsonResponse({"detail": "Unauthorized"}, status=401)
+                except (jwt.ExpiredSignatureError, jwt.InvalidTokenError, jwt.DecodeError, jwt.InvalidSignatureError) as e:
+                    if isinstance(e, jwt.ExpiredSignatureError):
+                        print("Token has expired")
+                        return JsonResponse({"detail": "Token expired"}, status=401)
+                    else:
+                        print(f"JWT error: {type(e).__name__} → {e}\n")
+                        return JsonResponse({"detail": "Unauthorized"}, status=401)
 
             ip = self.get_client_ip(request)
 

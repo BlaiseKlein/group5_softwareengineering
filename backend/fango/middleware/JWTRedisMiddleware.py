@@ -48,6 +48,11 @@ class JWTRedisMiddleware:
                 request.user_info = {}
             
         except (jwt.ExpiredSignatureError, jwt.InvalidTokenError, jwt.DecodeError, jwt.InvalidSignatureError):
-            return JsonResponse({"detail": "Unauthenticated"}, status=401)
+            if isinstance(e, jwt.ExpiredSignatureError):
+                print("Token has expired")
+                return JsonResponse({"detail": "Token expired"}, status=401)
+            else:
+                print(f"JWT error: {type(e).__name__} → {e}\n")
+                return JsonResponse({"detail": "Unauthorized"}, status=401)
 
         return self.get_response(request)
