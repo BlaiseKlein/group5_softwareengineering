@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework import routers
-from .views import RegisterView, LoginView, UserView, LogoutView, GetUserHistory
+from .views import RegisterView, LoginView, UserView, LogoutView, GetUserHistory, UserLearningInfo
 
 router = routers.DefaultRouter()
 
@@ -11,4 +11,5 @@ urlpatterns = [
     path('logout', LogoutView.as_view(), name='logout'),
     path('get_user_history/', GetUserHistory.as_view(), name='get_user_history'),
     path('', include('image_handling.urls')),
+    path('userlearninginfo', UserLearningInfo.as_view(), name='userlearninginfo'),
 ]

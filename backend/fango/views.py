@@ -53,6 +53,7 @@ class LoginView(APIView):
             "status": user.status,
             "country": user.country,
             "default_lang_id": user.default_lang_id_id if user.default_lang_id_id else "",
+            "difficulty": user.difficulty,
             "created_at": user.created_at.isoformat() if user.created_at else current_time.isoformat(),
             "last_login_at": current_time.isoformat()
         })
@@ -162,4 +163,42 @@ class GetUserHistory(APIView):
             'previous_page_url': ' '
         }
 
+        return response
+    
+class UserLearningInfo(APIView):
+    def get(self, request):
+        languages = Language.objects.all()
+        lang_dict = {lang.code: lang.lang for lang in languages}
+        response = Response()
+        response.data = {"languages": lang_dict}
+        if getattr(request, "user_info", None):
+            response.data["user_info"] = request.user_info
+        return response
+    def post(self, request):
+        user_id = request.user_id
+
+        response = Response()
+        user = None
+        try:
+            if getattr(request, "user_info", None):
+                user = AppUser.objects.get(id=user_id)
+        except AppUser.DoesNotExist:
+            print("User not found.")
+            return JsonResponse({"detail": "Unauthorized"}, status=401)
+        
+        user.default_lang_id_id = (Language.objects.get(lang=request.data.get("defaultLang"))).pk
+        user.difficulty = request.data.get("difficulty")
+        user.save(update_fields=["default_lang_id_id", "difficulty"])
+
+        redis_client.hset(
+            f"user:{user_id}:session",
+            mapping={
+                "default_lang_id": user.default_lang_id_id if user.default_lang_id_id else "",
+                "difficulty": user.difficulty,
+            }
+        )
+
+        response.data = {
+            'message': "success"
+        }
         return response
