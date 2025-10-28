@@ -60,9 +60,9 @@ const router = createBrowserRouter([
   { path: "/signup/password", element: <SignUpPassword /> },
   { path: "/signup/targetlan", element: <SignUpTargetLan /> },
   { path: "/signup/goal", element: <SignUpGoal /> },
-  
-  { path: "/signup/difficulty", element: <SignUpDifficulty /> },
-  { path: "/signup/difficulty", element: <SignUpAllSet /> },
+  {path: "/signup/difficulty", element: <SignUpDifficulty /> },
+
+  { path: "/signup/allset", element: <SignUpAllSet /> },
 ]);
 
   ReactDOM.createRoot(document.getElementById("root")!).render(
