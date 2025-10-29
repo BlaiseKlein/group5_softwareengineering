@@ -130,12 +130,17 @@ export default function CameraPage() {
 
     const formData = new FormData();
     formData.append("file", picture.pictureAsFile);
-    formData.append("target_lang", targetLang); 
+    const selectedLabel = LANGS.find(lang => lang.code === targetLang)?.label;
+    if (selectedLabel) {
+      formData.append("target_lang", selectedLabel);
+    }
+    formData.append("target_lang_code", targetLang)
 
     try {
       const response = await fetch("http://localhost:8000/api/image-translate/", {
         method: "POST",
         body: formData,
+        credentials: 'include'
       });
       const responseData = await response.json();
       if (responseData) {
