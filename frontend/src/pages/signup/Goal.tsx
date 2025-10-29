@@ -9,8 +9,8 @@
 
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import SpringMotionLayout from "../components/SpringMotionLayout";
-import MultiCheckbox from "../components/checkbox/MultiCheckbox";
+import SpringMotionLayout from "../../components/animation/SpringMotionLayout";
+import MultiCheckbox from "../../components/checkbox/MultiCheckbox";
 
 export default function SignUpGoal() {
   const navigate = useNavigate();

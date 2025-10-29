@@ -4,12 +4,12 @@
  * Todo: 
  * Populate dynamic data for username, quiz, search history...
  * Adjust max w for various screen size (current setting: 1080px)
- * Connect pages
+ * 
  * 
  */
 import './landing.css';
-import Card from './components/Cards';
-import GalleryPage from './components/GalleryPage';
+import Card from './components/card/Cards';
+import GalleryPage from './components/card/GalleryPage';
 
 function Landing() {
   return (

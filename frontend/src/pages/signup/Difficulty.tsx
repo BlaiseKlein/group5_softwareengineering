@@ -7,14 +7,11 @@
  */
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import SpringMotionLayout from "../components/SpringMotionLayout";
-// If your component file is named SingleCheckboxStep.tsx, update this import accordingly:
-import SingleCheckbox from "../components/checkbox/SingleCheckbox";
+import SpringMotionLayout from "../../components/animation/SpringMotionLayout";
+import SingleCheckbox from "../../components/checkbox/SingleCheckbox";
 
 export default function SignUpDifficulty() {
   const navigate = useNavigate();
-
-  // single value instead of string[]
   const [difficulty, setDifficulty] = React.useState<string | null>(null);
 
   const options = [
@@ -28,7 +25,6 @@ export default function SignUpDifficulty() {
 
   const submitDifficulty = async (cleanValue: string) => {
     // TODO: send to backend if needed
-    // e.g., await fetch('/api/signup', { method: 'POST', body: JSON.stringify({ difficulty: cleanValue }) });
 
     const redirect = "http://localhost:3000/signup/allset";
     window.location.replace(redirect);

@@ -5,15 +5,15 @@
  * 
  * TODO:
  * Connect with DB 
- * 
+ * Language suggestion? - work with backend
  */
 
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import SpringMotionLayout from "../components/SpringMotionLayout";
-import TextInputStep from "../components/TextInputStep";
-import SuggestInputStep from "../components/SuggestInputStep";
-import { suggestLanguages } from "../utils/languageSuggest";
+import SpringMotionLayout from "../../components/animation/SpringMotionLayout";
+import TextInputStep from "../../components/utils/TextInputStep";
+// import SuggestInputStep from "../utils/SuggestInputStep";
+// import { suggestLanguages } from "../utils/LanguageSuggest";
 
 export default function SetUpTargetLan() {
     const [targetLan, setTargetLan] = React.useState("");

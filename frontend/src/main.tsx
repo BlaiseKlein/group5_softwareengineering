@@ -6,33 +6,33 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import "./index.css";
 
 // Layout
-import AppLayout from "./layout/AppLayout";
+import AppLayout from "./components/layout/AppLayout";
 
 // Routes 
 // Basic
-import Landing from "./landing";
-import Login from "./login";
-import RegisterPage from "./register";
+import Landing from "./Landing";
+import Login from "./pages/user/Login";
+import RegisterPage from "./pages/user/Register";
 
 // Translation
-import Camera from "./translation/camera";
-import Processing from "./translation/processing";
-import Result from "./translation/result";
+import Camera from "./pages/translation/Camera";
+import Processing from "./pages/translation/Processing";
+import Result from "./pages/translation/Result";
 
 // User
-import UserHistory from "./user/userhistory";
-import Userinfo from "./user/userinfo";
-import UserLearningInfo from "./user/userlearninginfo";
+import UserHistory from "./pages/user/Userhistory";
+import Userinfo from "./pages/user/Userinfo";
+import UserLearningInfo from "./pages/user/Userlearninginfo";
 
 // Sign Up
-import SignUpName from "./signup/name";
-import SignUpEmail from "./signup/email";
-import SignUpPassword from "./signup/password";
+import SignUpName from "./pages/signup/Name";
+import SignUpEmail from "./pages/signup/Email";
+import SignUpPassword from "./pages/signup/Password";
 
-import SignUpGoal from "./signup/goal";
-import SignUpTargetLan from "./signup/targetlan";
-import SignUpDifficulty from "./signup/difficulty";
-import SignUpAllSet from "./signup/allset";
+import SignUpGoal from "./pages/signup/Goal";
+import SignUpTargetLan from "./pages/signup/Targetlan";
+import SignUpDifficulty from "./pages/signup/Difficulty";
+import SignUpAllSet from "./pages/signup/Allset";
 
 // Quick Guide
 
@@ -60,8 +60,7 @@ const router = createBrowserRouter([
   { path: "/signup/password", element: <SignUpPassword /> },
   { path: "/signup/targetlan", element: <SignUpTargetLan /> },
   { path: "/signup/goal", element: <SignUpGoal /> },
-  {path: "/signup/difficulty", element: <SignUpDifficulty /> },
-
+  { path: "/signup/difficulty", element: <SignUpDifficulty /> },
   { path: "/signup/allset", element: <SignUpAllSet /> },
 ]);
 
