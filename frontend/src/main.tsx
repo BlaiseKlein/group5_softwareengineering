@@ -37,6 +37,8 @@ import SignUpAllSet from "./pages/signup/Allset";
 
 // Quiz
 import DailyQuizDefault from "./pages/quiz/DailyQuizDefault";
+import DailyQuizResult from "./pages/quiz/DailyQuizResult"
+import FavWords from "./pages/quiz/FavWords";
 
 const router = createBrowserRouter([
   // For Bottom Nav
@@ -51,6 +53,8 @@ const router = createBrowserRouter([
       { path: "user/userinfo", element: <Userinfo /> },
       { path: "user/userlearninginfo", element: <UserLearningInfo /> },
       { path: "quiz/start", element: <DailyQuizDefault /> },
+      { path: "quiz/result", element: <DailyQuizResult /> },
+      { path: "quiz/favwords", element: <FavWords /> },
     ],
   },
 
