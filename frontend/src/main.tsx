@@ -28,7 +28,6 @@ import UserLearningInfo from "./pages/user/Userlearninginfo";
 import SignUpName from "./pages/signup/Name";
 import SignUpEmail from "./pages/signup/Email";
 import SignUpPassword from "./pages/signup/Password";
-
 import SignUpGoal from "./pages/signup/Goal";
 import SignUpTargetLan from "./pages/signup/Targetlan";
 import SignUpDifficulty from "./pages/signup/Difficulty";
@@ -36,18 +35,22 @@ import SignUpAllSet from "./pages/signup/Allset";
 
 // Quick Guide
 
+// Quiz
+import DailyQuizDefault from "./pages/quiz/DailyQuizDefault";
+
 const router = createBrowserRouter([
   // For Bottom Nav
   {
     element: <AppLayout />,
     children: [
-      { index: true, element: <Landing /> },                       
+      { index: true, element: <Landing /> },      
+      { path: "*", element: <Landing /> },                  
       { path: "translation/camera", element: <Camera /> },
       { path: "translation/result", element: <Result /> },
       { path: "user/userhistory", element: <UserHistory /> },
       { path: "user/userinfo", element: <Userinfo /> },
       { path: "user/userlearninginfo", element: <UserLearningInfo /> },
-      { path: "*", element: <Landing /> }, 
+      { path: "quiz/start", element: <DailyQuizDefault /> },
     ],
   },
 
