@@ -42,13 +42,12 @@ export default function CameraPage() {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
 
-  const [targetLang, setTargetLang] = useState<string>("en"); 
+  const [targetLang, setTargetLang] = useState<string>("fr"); 
   const LANGS = [
-    { code: "en", label: "English" },
+    { code: "fr", label: "French" },
     { code: "ko", label: "Korean" },
     { code: "ja", label: "Japanese" },
     { code: "zh", label: "Chinese (Simplified)" },
-    { code: "fr", label: "French" },
     { code: "es", label: "Spanish" },
     { code: "de", label: "German" },
     { code: "it", label: "Italian" },
@@ -139,12 +138,17 @@ export default function CameraPage() {
 
     const formData = new FormData();
     formData.append("file", picture.pictureAsFile);
-    formData.append("target_lang", targetLang); 
+    const selectedLabel = LANGS.find(lang => lang.code === targetLang)?.label;
+    if (selectedLabel) {
+      formData.append("target_lang", selectedLabel);
+    }
+    formData.append("target_lang_code", targetLang)
 
     try {
       const response = await fetch("http://localhost:8000/api/image-translate/", {
         method: "POST",
         body: formData,
+        credentials: 'include'
       });
       const responseData = await response.json();
       if (responseData) {

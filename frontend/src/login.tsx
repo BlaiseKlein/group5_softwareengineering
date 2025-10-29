@@ -37,13 +37,11 @@ export default function Login() {
             method: "post",
             headers: { "Content-Type": "application/json" },
             body: jsonData,
+            credentials: 'include'
         });
     
         const upload_response = await data.json();
         if (upload_response['success'] == true) {
-            // TODO: temporary cookie fix
-            localStorage.setItem("jwt", upload_response["jwt"]);
-            // ---
             console.log("Successful login attempt");
             window.location.replace(import.meta.env.VITE_REDIRECT_URL)
         } else {
