@@ -39,7 +39,7 @@ class JWTRedisMiddleware:
             if session:
                 request.user_info = dict(session)
             else:
-                request.user_info = {}
+                return JsonResponse({"detail": "Unauthorized"}, status=401)
             
         except (jwt.ExpiredSignatureError, jwt.InvalidTokenError, jwt.DecodeError, jwt.InvalidSignatureError):
             if isinstance(e, jwt.ExpiredSignatureError):
