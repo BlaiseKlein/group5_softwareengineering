@@ -15,10 +15,6 @@ export default function Logout() {
         if (upload_response) {
             console.log("Successful logout attempt");
 
-            // TODO: temp cookie fix
-            localStorage.removeItem("jwt");
-            document.cookie = "jwt=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; samesite=Lax";
-            // ---
             window.location.replace(import.meta.env.VITE_REDIRECT_URL + "/login")
         } else {
             console.log("Error Found");

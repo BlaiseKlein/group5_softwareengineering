@@ -79,11 +79,6 @@ export default function UserLearningInfo() {
 
       const data = await response.json();
 
-      if (data.detail && data.detail.includes("Token expired")) {
-        window.location.href = "/login";
-        return;
-      }
-
       setName(data.user_info.name);
       setLanguages(Object.values(data.languages));
       const defaultLangId = data.user_info.default_lang_id;
