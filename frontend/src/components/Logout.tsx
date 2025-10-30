@@ -6,10 +6,7 @@ export default function Logout() {
         const data = await fetch(import.meta.env.VITE_SERVER_URL + "/logout", {
             method: "post",
             headers: {
-                "Content-Type": "application/json",
-                // TODO: temp cookie fix
-                "Authorization": `Bearer ${localStorage.getItem("jwt")}`
-                // ---
+                "Content-Type": "application/json"
              },
             credentials: 'include'
         });

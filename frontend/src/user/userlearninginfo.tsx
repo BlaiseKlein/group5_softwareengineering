@@ -62,23 +62,26 @@ export default function UserLearningInfo() {
   const [languages, setLanguages] = useState([]);
   const [difficulty, setDifficulty] = useState<"Easy" | "Medium" | "Hard">("Easy");
 
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
     const fetchUserLearningInfo = async () => {
       let response = await fetch(import.meta.env.VITE_SERVER_URL + "/userlearninginfo", {
         method: "get",
-        headers: { 
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${localStorage.getItem("jwt")}`
-        },
+        headers: {"Content-Type": "application/json"},
         credentials: "include"
       });
+
+      if (response.status == 401) {
+        window.location.href = "/login";
+        return;
+      }
 
       const data = await response.json();
 
       if (data.detail && data.detail.includes("Token expired")) {
-        console.log("JWT has expired!");
-        localStorage.removeItem("jwt");
         window.location.href = "/login";
+        return;
       }
 
       setName(data.user_info.name);
@@ -89,12 +92,8 @@ export default function UserLearningInfo() {
         setdefaultLang(data.languages[defaultLangId]);
       }
       setDifficulty(data.user_info?.difficulty ? data.user_info.difficulty.toLowerCase().replace(/(?:^|[^a-zA-Z0-9]+)(.)/g, (_: string, c: string) => c.toUpperCase()) : "");
-      // TODO: need some middleware maybe to check if token is valid, redirects if invalid
-      // if (response.status == 401) {
-      //   localStorage.removeItem("jwt");
-      //   window.location.href = "/login";
-      // }
 
+      setLoading(false);
     }
     fetchUserLearningInfo();
   }, []);
@@ -129,27 +128,22 @@ export default function UserLearningInfo() {
     try {
         let response = await fetch(import.meta.env.VITE_SERVER_URL + "/userlearninginfo", {
           method: "post",
-          headers: { 
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${localStorage.getItem("jwt")}`
-          },
+          headers: {"Content-Type": "application/json"},
           body: JSON.stringify(data),
           credentials: "include"
         });
-        // console.log({
-        //   defaultLangId,
-        //   // secondaryLang: secondaryLang || null,
-        //   difficulty,
-        //   goals,
-        // });
         if (!response.ok) {
-          throw new Error("Error saving user info");
+          alert("Error saving user info");
         }
         alert("Saved!");
       } catch (e) {
         console.error(e)
         alert("Error saving data")
       }
+  }
+
+  if (loading) {
+    return <div>Loading...</div>;
   }
 
   return (
