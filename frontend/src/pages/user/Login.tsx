@@ -25,7 +25,6 @@ export default function Login() {
             "password": event.currentTarget.password.value,
         }
         const jsonData = JSON.stringify(formData)
-        console.log(jsonData)
     
         // TODO: CHANGE THIS URL
         const data = await fetch(import.meta.env.VITE_SERVER_URL + "/login", {
@@ -33,6 +32,7 @@ export default function Login() {
             headers: { "Content-Type": "application/json" },
             credentials: 'include',
             body: jsonData,
+            credentials: 'include'
         });
     
         const upload_response = await data.json();

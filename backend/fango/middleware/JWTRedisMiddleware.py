@@ -17,7 +17,9 @@ class JWTRedisMiddleware:
     def __call__(self, request):
         if request.path in self.exempt_paths:
             return self.get_response(request)
-        token = request.COOKIES.get("jwt")
+        
+        token = request.COOKIES.get('jwt')
+        
         if not token:
             return JsonResponse({"detail": "Unauthenticated"}, status=401)
         

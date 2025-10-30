@@ -25,7 +25,9 @@ class RateLimitMiddleware:
                 return self.get_response(request)
 
             user_id = None
+
             token = request.COOKIES.get("jwt")
+            
             if token:
                 try:
                     payload = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
