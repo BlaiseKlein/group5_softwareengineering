@@ -21,6 +21,7 @@ import Result from "./pages/translation/Result";
 
 // User
 import UserHistory from "./pages/user/Userhistory";
+import UserHistoryItem from "./pages/user/Userhistoryitem"
 import Userinfo from "./pages/user/Userinfo";
 import UserLearningInfo from "./pages/user/Userlearninginfo";
 
@@ -50,6 +51,7 @@ const router = createBrowserRouter([
       { path: "translation/camera", element: <Camera /> },
       { path: "translation/result", element: <Result /> },
       { path: "user/userhistory", element: <UserHistory /> },
+      { path: "user/userhistory/:history_id", element: <UserHistoryItem /> },
       { path: "user/userinfo", element: <Userinfo /> },
       { path: "user/userlearninginfo", element: <UserLearningInfo /> },
       { path: "quiz/start", element: <DailyQuizDefault /> },

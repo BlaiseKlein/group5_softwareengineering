@@ -3,7 +3,9 @@ from .serializers import AppUserSerializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.exceptions import AuthenticationFailed
+from rest_framework.exceptions import PermissionDenied
 from rest_framework import status
+from django.conf import settings
 from django.utils import timezone
 from django.shortcuts import get_object_or_404
 from .models import AppUser, UserHistory, Word, Translation, Language
@@ -240,14 +242,23 @@ class GetUserHistoryItem(APIView):
         user = get_object_or_404(AppUser, id=user_id)
 
         user_history = get_object_or_404(UserHistory, id=history_id, user_id=user)
+        translation = user_history.translation_id
+        frontend_image_path = request.build_absolute_uri(settings.MEDIA_URL + user_history.img_path)
+        userHistoryUser = user_history.user_id
+
+        if user != userHistoryUser:
+            raise PermissionDenied("Not authorized to view this item")
 
         data = {
-            'word_english': user_history.translation_id.word_id.label_en,
-                'language': user_history.translation_id.target_lang_id.lang,
-                'word_translated': user_history.translation_id.label_target,
-                'created_at': user_history.created_at,
-                'is_favorite': user_history.is_favorite,
-                'image_url': user_history.img_path
+            "url": frontend_image_path,
+            "translation": translation.label_target.title(),
+            "english": translation.word_id.label_en.title(),
+            "translatedSentenceEasy": translation.example_target_easy,
+            "englishSentenceEasy": translation.example_en_easy,
+            "translatedSentenceMed": translation.example_target_med,
+            "englishSentenceMed": translation.example_en_med,
+            "translatedSentenceHard": translation.example_target_hard,
+            "englishSentenceHard": translation.example_en_hard
         }
 
         return Response(data)
