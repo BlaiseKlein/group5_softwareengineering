@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework import status
 from django.utils import timezone
+from django.shortcuts import get_object_or_404
 from .models import AppUser, UserHistory, Word, Translation, Language
 from .redis_client import redis_client
 import jwt, datetime
@@ -221,3 +222,32 @@ class GetUserHistory(APIView):
         }
 
         return response
+    
+class GetUserHistoryItem(APIView):
+
+    def get(self, request, history_id):
+        token = request.COOKIES.get('jwt')
+        if not token:
+            raise AuthenticationFailed('Unauthenticated')
+        try:
+            payload = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
+            user_id = payload['id']
+        except jwt.ExpiredSignatureError:
+            raise AuthenticationFailed('Token expired')
+        except jwt.InvalidTokenError:
+            raise AuthenticationFailed('Invalid token')
+
+        user = get_object_or_404(AppUser, id=user_id)
+
+        user_history = get_object_or_404(UserHistory, id=history_id, user_id=user)
+
+        data = {
+            'word_english': user_history.translation_id.word_id.label_en,
+                'language': user_history.translation_id.target_lang_id.lang,
+                'word_translated': user_history.translation_id.label_target,
+                'created_at': user_history.created_at,
+                'is_favorite': user_history.is_favorite,
+                'image_url': user_history.img_path
+        }
+
+        return Response(data)
