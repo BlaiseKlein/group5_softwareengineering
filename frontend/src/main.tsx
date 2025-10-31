@@ -38,6 +38,7 @@ import SignUpDifficulty from "./pages/signup/Difficulty";
 import SignUpAllSet from "./pages/signup/Allset";
 
 // Quick Guide
+import QuickGuide from "./pages/quickguide/QuickGuide";
 
 // Quiz
 import DailyQuizDefault from "./pages/quiz/DailyQuizDefault";
@@ -75,6 +76,7 @@ const router = createBrowserRouter([
   { path: "/signup/allset", element: <SignUpAllSet /> },
   { path: "/404", element: <CannotFindPage /> },
   { path: "/pageloading", element: <Loading /> },
+  { path: "/quickguide", element: <QuickGuide /> },
 ]);
 
   ReactDOM.createRoot(document.getElementById("root")!).render(
