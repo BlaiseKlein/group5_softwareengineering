@@ -6,6 +6,7 @@
  * Add + button for 3rd or 4th languages
  * 
  */
+import Loading from '../../pages/status/Loading';
 import React, { useEffect, useRef, useState } from "react";
 import { Camera } from "lucide-react";
 
@@ -64,38 +65,42 @@ export default function UserLearningInfo() {
 
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchUserLearningInfo = async () => {
-      let response = await fetch(import.meta.env.VITE_SERVER_URL + "/userlearninginfo", {
-        method: "get",
-        headers: {"Content-Type": "application/json"},
-        credentials: "include"
-      });
+  const fetchUserLearningInfo = async () => {
+    let response = await fetch(import.meta.env.VITE_SERVER_URL + "/userlearninginfo", {
+      method: "get",
+      headers: {"Content-Type": "application/json"},
+      credentials: "include"
+    });
 
-      if (response.status == 401) {
-        window.location.href = "/login";
-        return;
-      }
-
-      const data = await response.json();
-
-      if (response.status == 429) {
-        alert(`${data.detail}. Retry after ${data.retry_after} seconds.`);
-        return;
-      }
-
-      setName(data.user_info.name);
-      setLanguages(Object.values(data.languages));
-      const defaultLangId = data.user_info.default_lang_id;
-      setdefaultLangId(defaultLangId)
-      if (defaultLangId && data.languages) {
-        setdefaultLang(data.languages[defaultLangId]);
-      }
-      setDifficulty(data.user_info?.difficulty ? data.user_info.difficulty.toLowerCase().replace(/(?:^|[^a-zA-Z0-9]+)(.)/g, (_: string, c: string) => c.toUpperCase()) : "");
-
-      setLoading(false);
+    if (response.status == 401) {
+      window.location.href = "/login";
+      return;
     }
-    fetchUserLearningInfo();
+
+    const data = await response.json();
+
+    if (response.status == 429) {
+      alert(`${data.detail}. Retry after ${data.retry_after} seconds.`);
+      return;
+    }
+
+    setName(data.user_info.name);
+    setLanguages(Object.values(data.languages));
+    const defaultLangId = data.user_info.default_lang_id;
+    setdefaultLangId(defaultLangId)
+    if (defaultLangId && data.languages) {
+      setdefaultLang(data.languages[defaultLangId]);
+    }
+    setDifficulty(data.user_info?.difficulty ? data.user_info.difficulty.toLowerCase().replace(/(?:^|[^a-zA-Z0-9]+)(.)/g, (_: string, c: string) => c.toUpperCase()) : "");
+
+    setLoading(false);
+  };
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      fetchUserLearningInfo();
+    }, 800);
+
+    return () => clearTimeout(timer);
   }, []);
 
   // const [secondaryLang, setSecondaryLang] = useState("");        
@@ -149,7 +154,7 @@ export default function UserLearningInfo() {
   }
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <Loading />;
   }
 
   return (
