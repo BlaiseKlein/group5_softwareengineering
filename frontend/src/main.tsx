@@ -14,6 +14,10 @@ import Landing from "./landing";
 import Login from "./pages/user/Login";
 import RegisterPage from "./pages/user/Register";
 
+// Status
+import Loading from './pages/status/Loading';
+import CannotFindPage from './pages/status/404';
+
 // Translation
 import Camera from "./pages/translation/Camera";
 import Processing from "./pages/translation/Processing";
@@ -69,6 +73,8 @@ const router = createBrowserRouter([
   { path: "/signup/goal", element: <SignUpGoal /> },
   { path: "/signup/difficulty", element: <SignUpDifficulty /> },
   { path: "/signup/allset", element: <SignUpAllSet /> },
+  { path: "/404", element: <CannotFindPage /> },
+  { path: "/pageloading", element: <Loading /> },
 ]);
 
   ReactDOM.createRoot(document.getElementById("root")!).render(
