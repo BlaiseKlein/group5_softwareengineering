@@ -6,18 +6,26 @@
  * Add guideline logic
  */
 
-import React from "react";
+import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import SpringMotionLayout from "../../components/animation/SpringMotionLayout";
 
 export default function SignUpAllSet() {
   const navigate = useNavigate();
 
-  // Directly navigates to quick guide 
-  const StartGuideLine = async (cleanValue: string) => {
-    const redirect = "http://localhost:3000/quickguide";
+  const StartGuideLine = () => {
+    const redirect = "http://localhost:3000/?guide=1";
     window.location.replace(redirect);
   };
+
+    useEffect(() => {
+    const timer = setTimeout(() => {
+      StartGuideLine();
+    }, 2000); // 2000 ms = 2 seconds
+
+    // cleanup on unmount to prevent memory leaks
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     // Add dynamic username
@@ -26,7 +34,8 @@ export default function SignUpAllSet() {
       imageSrc="https://preview.redd.it/what-is-your-opinion-on-pingu-v0-tmg61ucmri3d1.png?auto=webp&s=bd2b54bbba31c4d3d0bb459bced615e594a5c1ff"
     >
 
-    <p> Quick app tour guide will show up here </p>
+    <p> Quick app tour guide will be started soon </p>
+
     </SpringMotionLayout>
   );
 }
