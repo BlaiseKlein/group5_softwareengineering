@@ -25,9 +25,21 @@ export default function UserInfo() {
     setAvatarUrl(url);
   }
 
-  function onSubmit(e: React.FormEvent) {
+  async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     // TODO: send to API
+    const response = await fetch(import.meta.env.VITE_SERVER_URL + "/update_user_info", {
+        credentials: 'include',
+      }
+    )
+    .then(function(response) { return response.json(); })
+    .then(function(json) {
+      if (json.status == 200){
+        window.location.reload()
+      } else {
+        window.alert("Unable to save changes")
+      }
+    })
     console.log({ name, email, country, avatarUrl });
   }
 
