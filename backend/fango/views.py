@@ -222,36 +222,3 @@ class GetUserHistory(APIView):
         }
 
         return response
-
-# class GetUserInfo(APIView):
-#     def get(self, request):
-#         token = request.COOKIES.get('jwt')
-
-#         if not token:
-#             raise AuthenticationFailed('Unauthenticated')
-
-#         try:
-#             payload = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
-#             user_id = payload['id']
-#         except jwt.ExpiredSignatureError:
-#             pass
-
-#         try:
-#             user = AppUser.objects.get(id=user_id)
-#         except AppUser.DoesNotExist:
-#             print("User not found.")
-
-#         try:
-#             user_history = UserHistory.objects.filter(user_id=user) 
-#         except UserHistory.DoesNotExist:
-#             pass
-
-#         response = Response()
-#         response.data = {
-#             'email': 'TestEmail',
-#             'default_language': 'SomeLang' ,
-#             'country': 'Canada',
-#             'name': 'Blaise'
-#         }
-
-#         return response
