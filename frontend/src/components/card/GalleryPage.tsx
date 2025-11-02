@@ -64,7 +64,7 @@ export default function GalleryPage() {
       let likesHistory = []
       let history = []
       for (let i = 0; i < json.history.length; i++){
-        json.history[i].id = i;
+        json.history[i].key = i;
         if (json.history[i].is_favorite == true){
           likesHistory.push(json.history[i])
         }
@@ -212,7 +212,7 @@ export default function GalleryPage() {
               </button>
               <button
                 className="rounded-lg px-4 py-2 text-sm bg-blue-600 text-white hover:bg-blue-700"
-                onClick={() => setSelected(null)}
+                onClick={() => window.location.replace(import.meta.env.VITE_REDIRECT_URL + "/user/userhistory/" + selected.id)}
               >
                 Go to details
               </button>
