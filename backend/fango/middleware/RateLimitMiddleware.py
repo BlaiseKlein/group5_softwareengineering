@@ -22,7 +22,7 @@ class RateLimitMiddleware:
 
     def __call__(self, request):
         try:
-            if request.path in self.exempt_paths:
+            if request.path.startswith("/api/media") or request.path in self.exempt_paths:
                 return self.get_response(request)
 
             user_id = None
