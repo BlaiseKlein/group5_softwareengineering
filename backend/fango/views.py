@@ -138,6 +138,14 @@ class UpdateUserInfo(APIView):
             user.name = username
             user.country = country
             user.save()
+            redis_client.hset(
+                f"user:{user_id}:session",
+                mapping={
+                    "name": username,
+                    "country": country
+                }
+            )
+
             data = {'message': 'Successfully updated information!'}
             return JsonResponse(data, status=status.HTTP_200_OK)
         except:
