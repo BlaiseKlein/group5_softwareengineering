@@ -67,6 +67,7 @@ class LoginView(APIView):
         response = Response()
 
         response.set_cookie(key='jwt', value=token, httponly=True, secure=True, samesite='None', path='/')
+        # response.set_cookie(key='jwt', value=token, httponly=True)
         response.data = {
             "jwt": token,
             "success": True
@@ -206,6 +207,7 @@ class GetUserHistory(APIView):
         history_list = []
         for user_history in user_history:
             history_object = {
+                'id': user_history.id,
                 'word_english': user_history.translation_id.word_id.label_en,
                 'language': user_history.translation_id.target_lang_id.lang,
                 'word_translated': user_history.translation_id.label_target,
