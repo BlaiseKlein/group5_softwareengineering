@@ -2,6 +2,7 @@ services:
  db:
    image: postgres:17
    container_name: fango-post
+   restart: unless-stopped # automatic restarts unless explicit stop with docker stop
    environment:
      POSTGRES_DB: ${DATABASE_NAME}
      POSTGRES_USER: ${DATABASE_USERNAME}
@@ -10,17 +11,22 @@ services:
      - "5432:5432"
    volumes:
      - postgres_data:/var/lib/postgresql/data
+     - img_data:/app/images # images stored separately
+     - audio_data:/app/audio # audio stored separately
    env_file:
      - .env
- 
+  
  django-web:
    build: 
     context: ./backend
-   container_name: fango-group5
+   container_name: fango-back
    ports:
      - "8000:8000"
    depends_on:
      - db
+   volumes:
+     - ./backend:/app
+     - img_data:/app/media/images
    environment:
      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY}
      DEBUG: ${DEBUG}
@@ -33,7 +39,39 @@ services:
      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
      DATABASE_HOST: ${DATABASE_HOST}
      DATABASE_PORT: ${DATABASE_PORT}
+
+     REDIS_HOST: ${REDIS_HOST}
+     REDIS_PORT: ${REDIS_PORT}
+     REDIS_DB: ${REDIS_DB}
    env_file:
      - .env
+
+ frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: fango-front
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - django-web
+
+ redis:
+    image: redis:7
+    container_name: fango-redis
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
 volumes:
    postgres_data:
+   img_data:
+   audio_data:
+   redis_data:
+
