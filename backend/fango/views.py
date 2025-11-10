@@ -193,6 +193,9 @@ class GetUserHistory(APIView):
         language_filter = request.query_params.get('language_filter', None)
         page = request.query_params.get('page', 1)
 
+        # subject to change
+        page_size = 6
+
         if not token:
             raise AuthenticationFailed('Unauthenticated')
 
@@ -207,10 +210,18 @@ class GetUserHistory(APIView):
         except AppUser.DoesNotExist:
             print("User not found.")
 
-        try:
-            user_history = UserHistory.objects.filter(user_id=user) 
-        except UserHistory.DoesNotExist:
-            pass
+        queryset = UserHistory.objects.filter(user_id=user)
+        if language_filter:
+            queryset = queryset.filter(translation_id__target_lang_id__lang=language_filter)
+
+        total_items = queryset.count()
+        max_page = max((total_items - 1) // page_size + 1, 1)
+
+        page = min(max(int(page), 1), max_page)
+        lower_bound = (page - 1) * page_size
+        upper_bound = lower_bound + page_size
+
+        user_history = queryset[lower_bound:upper_bound]
 
         history_list = []
         for user_history in user_history:
@@ -226,11 +237,18 @@ class GetUserHistory(APIView):
 
             history_list.append(history_object)
 
+        next_page = int(page) + 1 if page < max_page else None
+        previous_page = max(int(page) - 1, 1)
+
+        base_url = "http://localhost:8000/api/get_user_history/"
+        next_page_url = f"{base_url}?language_filter={language_filter}&page={next_page}"
+        previous_page_url = f"{base_url}?language_filter={language_filter}&page={previous_page}"
+    
         response = Response()
         response.data = {
             'history': history_list,
-            'next_page_url': ' ',
-            'previous_page_url': ' '
+            'next_page_url': next_page_url,
+            'previous_page_url': previous_page_url,
         }
 
         return response
