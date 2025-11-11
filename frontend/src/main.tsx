@@ -29,13 +29,24 @@ import Userinfo from "./pages/user/Userinfo";
 import UserLearningInfo from "./pages/user/Userlearninginfo";
 
 // Sign Up
-import SignUpName from "./pages/signup/Name";
-import SignUpEmail from "./pages/signup/Email";
-import SignUpPassword from "./pages/signup/Password";
-import SignUpGoal from "./pages/signup/Goal";
-import SignUpTargetLan from "./pages/signup/Targetlan";
-import SignUpDifficulty from "./pages/signup/Difficulty";
-import SignUpAllSet from "./pages/signup/Allset";
+import SignUp from "./pages/signup/Signup";
+import { SignupProvider } from "./pages/signup/SignupContext";
+// import SignupLayout from "./pages/signup/SignupLayout";
+// import NameStep from "./pages/signup/NameStep";
+// import EmailStep from "./pages/signup/EmailStep";
+// import PasswordStep from "./pages/signup/PasswordStep";
+// import SetUpTargetLan from "./pages/signup/SetUpTargetLan";
+// import SignUpGoal from "./pages/signup/SignUpGoal";
+// import SignUpDifficulty from "./pages/signup/SignUpDifficulty";
+// import SignUpAllSet from "./pages/signup/SignUpAllSet";
+
+// import SignUpName from "./pages/signup/Name";
+// import SignUpEmail from "./pages/signup/Email";
+// import SignUpPassword from "./pages/signup/Password";
+// import SignUpGoal from "./pages/signup/Goal";
+// import SignUpTargetLan from "./pages/signup/Targetlan";
+// import SignUpDifficulty from "./pages/signup/Difficulty";
+// import SignUpAllSet from "./pages/signup/Allset";
 
 // Quick Guide
 import QuickGuide from "./pages/quickguide/QuickGuide";
@@ -67,16 +78,40 @@ const router = createBrowserRouter([
   { path: "/login", element: <Login /> },
   { path: "/register", element: <RegisterPage /> },
   { path: "/translation/processing", element: <Processing /> },
-  { path: "/signup/name", element: <SignUpName /> },
-  { path: "/signup/email", element: <SignUpEmail /> },
-  { path: "/signup/password", element: <SignUpPassword /> },
-  { path: "/signup/targetlan", element: <SignUpTargetLan /> },
-  { path: "/signup/goal", element: <SignUpGoal /> },
-  { path: "/signup/difficulty", element: <SignUpDifficulty /> },
-  { path: "/signup/allset", element: <SignUpAllSet /> },
+  // { path: "/signup/name", element: <SignUpName /> },
+  // { path: "/signup/email", element: <SignUpEmail /> },
+  // { path: "/signup/password", element: <SignUpPassword /> },
+  // { path: "/signup/targetlan", element: <SignUpTargetLan /> },
+  // { path: "/signup/goal", element: <SignUpGoal /> },
+  // { path: "/signup/difficulty", element: <SignUpDifficulty /> },
+  // { path: "/signup/allset", element: <SignUpAllSet /> },
   { path: "/404", element: <CannotFindPage /> },
   { path: "/pageloading", element: <Loading /> },
   { path: "/quickguide", element: <QuickGuide /> },
+
+  //   {
+  //   path: "/signup",
+  //   element: <SignupLayout />,
+  //   children: [
+  //     { index: true, element: <NameStep /> },
+  //     { path: "email", element: <EmailStep /> },
+  //     { path: "password", element: <PasswordStep /> },
+  //     { path: "targetlan", element: <SetUpTargetLan /> },
+  //     { path: "goal", element: <SignUpGoal /> },
+  //     { path: "difficulty", element: <SignUpDifficulty /> },
+  //     { path: "allset", element: <SignUpAllSet /> },
+  //   ],
+  // },
+  // App.jsx or routes config
+{
+  path: "/signup",
+    element: (
+    <SignupProvider>
+      <SignUp />
+    </SignupProvider>
+  ),
+}
+
 ]);
 
   ReactDOM.createRoot(document.getElementById("root")!).render(

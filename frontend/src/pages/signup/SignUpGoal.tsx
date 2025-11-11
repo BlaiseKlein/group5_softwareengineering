@@ -1,20 +1,16 @@
-/**
- * Includes animation effects for smooth transitions.
- * This page takes only user's learning goal.
- * Multiple choices are available.
- * 
- * TODO:
- * Connect with DB
- */
-
 import React from "react";
-import { useNavigate } from "react-router-dom";
 import SpringMotionLayout from "../../components/animation/SpringMotionLayout";
 import MultiCheckbox from "../../components/checkbox/MultiCheckbox";
+import { useSignup } from "../signup/SignupContext";
+import type { StepProps } from "./Types";
 
-export default function SignUpGoal() {
-  const navigate = useNavigate();
-  const [goals, setGoals] = React.useState<string[]>([]);
+export default function SignUpGoal({ onNext, onPrev }: StepProps) {
+  const { update, data } = useSignup();
+  const [goals, setGoals] = React.useState<string[]>(data?.goals ?? []);
+
+  React.useEffect(() => {
+    if (data?.goals) setGoals(data.goals);
+  }, [data?.goals]);
 
   const options = [
     { label: "Image Translation", value: "image-translation" },
@@ -28,11 +24,8 @@ export default function SignUpGoal() {
     vals.length === 0 ? "Please select at least one goal." : null;
 
   const submitGoal = async (cleanValues: string[]) => {
-    // TODO: send to backend 
-
-    // continue to next step for a now
-    const redirect = "http://localhost:3000/signup/difficulty";
-    window.location.replace(redirect);
+    update({ goals: cleanValues });
+    onNext(); 
   };
 
   return (
@@ -45,7 +38,7 @@ export default function SignUpGoal() {
         onChange={setGoals}
         options={options}
         inputName="learning-goals"
-        onPrevious={() => navigate(-1)}
+        onPrevious={onPrev}
         onSubmit={submitGoal}
         validate={validate}
         submitLabel="Next →"
