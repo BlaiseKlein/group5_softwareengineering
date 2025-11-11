@@ -58,6 +58,9 @@ export default function GalleryPage() {
   const cardsPerPage = cardsPerRow * maxRows; // 6 per page
   const [selected, setSelected] = useState<Item | null>(null);
   const [page, setPage] = useState(1);
+  const [canNext, setNext] = useState(true);
+  const [canPrev, setPrev] = useState(true);
+  const [totalPages, setTotalPages] = useState(1)
 
   const request_info = async() => {
     const response = await fetch(import.meta.env.VITE_SERVER_URL + "/get_user_history?page=" + page, {
@@ -83,8 +86,11 @@ export default function GalleryPage() {
     
       setHistory(json.history)
       setData(tab === "likes" ? likesHistory  : history)
-      console.log("DATA")
-      console.log(data);
+      setNext(json.next_page_url.length > 0)
+      setPrev(json.previous_page_url.length > 0)
+      setTotalPages(json.max_page) 
+      // console.log("DATA")
+      // console.log(data);
     },
     function() {
       return
@@ -105,16 +111,15 @@ export default function GalleryPage() {
   // Pagination settings (fixed layout)
 
   // const totalPages = Math.ceil(data.length / cardsPerPage);
-  const totalPages = 100;
   // const start = page * cardsPerPage;
   // const end = start + cardsPerPage;
   // const pageData = data.slice(start, end);
   const pageData = data
 
-  const canPrev = page > 0;
-  const canNext = page < totalPages - 1;
-  const goFirst = () => setPage(0);
-  const goLast = () => setPage(totalPages - 1);
+  // const canPrev = page > 1;
+  // const canNext = page < totalPages - 1;
+  const goFirst = () => setPage(1);
+  const goLast = () => setPage(totalPages);
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-6 space-y-6">
@@ -158,7 +163,7 @@ export default function GalleryPage() {
               First
             </button>
             <button
-              onClick={() => setPage((p) => Math.max(0, p - 1))}
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={!canPrev}
               aria-label="Previous page"
               className="rounded-full border border-gray-300 px-3 py-2 text-sm hover:bg-gray-100 disabled:opacity-40"
@@ -171,7 +176,7 @@ export default function GalleryPage() {
             </span>
 
             <button
-              onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
               disabled={!canNext}
               aria-label="Next page"
               className="rounded-full border border-gray-300 px-3 py-2 text-sm hover:bg-gray-100 disabled:opacity-40"
