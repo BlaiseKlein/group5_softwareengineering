@@ -12,7 +12,7 @@ export default function SignUpAllSet({ onNext }: StepProps) {
     // Connect with backend
     const submitAll = async () => {
       try {
-        const res = await fetch(`...`, {
+        const res = await fetch(import.meta.env.VITE_SERVER_URL + "/register", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(data), // { username, email, password, targetLan, goals, difficulty }
