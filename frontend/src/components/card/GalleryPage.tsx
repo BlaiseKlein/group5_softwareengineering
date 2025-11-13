@@ -58,7 +58,10 @@ export default function GalleryPage() {
       method: "GET",
       credentials: 'include'
     })
-    .then(function(response) { return response.json(); })
+    .then(
+      function(response) { return response.json(); },
+      function(e) { window.alert("A problem occured attempting to acquire user history\nTry again later") }
+    )
     .then(function(json) {
       // use the json
       let likesHistory = []

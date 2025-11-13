@@ -30,13 +30,11 @@ export default function UserInfo() {
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    // TODO: send to API
-
-        let formData = {
-            "new_username": name,
-            "new_country": country,
-        }
-        const jsonData = JSON.stringify(formData)
+    let formData = {
+        "new_username": name,
+        "new_country": country,
+    }
+    const jsonData = JSON.stringify(formData)
     const response = await fetch(import.meta.env.VITE_SERVER_URL + "/update_user_info", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -44,7 +42,10 @@ export default function UserInfo() {
         body: jsonData,
       }
     )
-    .then(function(response) { return response.status })
+    .then(
+        function(response) { return response.status },
+        function(e) { window.alert("A problem occured attempting to update user information\nTry again later") }
+      )
     .then(function(status) {
       if (status == 200){
         window.location.reload()
@@ -60,22 +61,24 @@ export default function UserInfo() {
         credentials: 'include',
       }
     )
-    .then(function(response) { 
-      if (response.status == 401) {
-        window.location.href = "/login";
-        return;
-      }
-      if (response.status == 429) {
-        response.json().then(function(data) {
-          alert(`${data.detail}. Retry after ${data.retry_after} seconds.`);
-        });
-        return;
-      }
+    .then(
+      function(response) { 
+        if (response.status == 401) {
+          window.location.href = "/login";
+          return;
+        }
+        if (response.status == 429) {
+          response.json().then(function(data) {
+            alert(`${data.detail}. Retry after ${data.retry_after} seconds.`);
+          });
+          return;
+        }
 
-      return response.json();
-    })
+        return response.json();
+    },
+      function(e) { window.alert("A problem occured attempting to update user information\nTry again later") }
+    )
     .then(function(json) {
-      // use the json
       setName(json.name)
       setEmail(json.email)
       setCountry(json.country)
