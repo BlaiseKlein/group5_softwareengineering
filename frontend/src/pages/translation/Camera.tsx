@@ -48,6 +48,12 @@ export default function CameraPage() {
 
   const [targetLang, setTargetLang] = useState<string>("fr"); 
   
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    const timer = setTimeout(() => { setLoading(false); }, 100);
+    return () => clearTimeout(timer);
+  }, []);
+  
   // Attach stream to video when ready
   useEffect(() => {
     if (camera && pendingStream && videoRef.current) {
@@ -215,6 +221,10 @@ export default function CameraPage() {
         setTargetLang(found.code)
       }
     });
+  }
+
+  if (loading) {
+    return <div></div>;
   }
 
   return (
