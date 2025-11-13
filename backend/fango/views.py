@@ -13,7 +13,7 @@ from .redis_client import redis_client
 import jwt, datetime
 from django.http import JsonResponse
 from rest_framework import status
-from .utils import get_user_id_from_token, get_user_by_id
+from .utils import get_user_id_from_token, get_user_by_id, authenticate_user
 
 SECRET_KEY = os.getenv('TOKEN_SECRET', 'secret')
 
@@ -140,16 +140,7 @@ class LogoutView(APIView):
 class UpdateUserInfo(APIView):
     def post(self, request):
         token = request.COOKIES.get('jwt')
-        if not token:
-            raise AuthenticationFailed('Unauthenticated')
-
-        user_id = get_user_id_from_token(token)
-        if not user_id:
-            raise AuthenticationFailed('Session Invalid')
-
-        user = get_user_by_id(user_id)
-        if not user:
-            raise AuthenticationFailed('User not valid')
+        user = authenticate_user(token)
         
         username = request.data.get('new_username')
         country = request.data.get('new_country')
@@ -183,19 +174,7 @@ class UpdateUserInfo(APIView):
 class GetUserInfo(APIView):
     def get(self, request):
         token = request.COOKIES.get('jwt')
-        if not token:
-            raise AuthenticationFailed('Unauthenticated')
-
-        if not token:
-            raise AuthenticationFailed('Unauthenticated')
-        
-        user_id = get_user_id_from_token(token)
-        if not user_id:
-            raise AuthenticationFailed('Session Invalid')
-
-        user = get_user_by_id(user_id)
-        if not user:
-            raise AuthenticationFailed('User not valid')
+        user = authenticate_user(token)
 
         default_lang = self.set_default_language(user)
         response = self.build_user_info_response(user, default_lang)
@@ -219,69 +198,65 @@ class GetUserInfo(APIView):
         return default_lang
         
 class GetUserHistory(APIView):
+    # subject to change
+    page_size = 6
+    base_url = "http://localhost:8000/api/get_user_history/"
+
     def get(self, request):
         token = request.COOKIES.get('jwt')
+        user = authenticate_user(token)
+
+        # get query params from request
         language_filter = request.query_params.get('language_filter', None)
         page = request.query_params.get('page', 1)
 
-        # subject to change
-        page_size = 6
+        queryset = UserHistory.objects.filter(user_id=user) # gets all userhistory items for that user
+        paginated_data, next_page_url, previous_page_url = self.paginate_history_item(queryset, page, language_filter)
 
-        if not token:
-            raise AuthenticationFailed('Unauthenticated')
-
-        try:
-            payload = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
-            user_id = payload['id']
-        except jwt.ExpiredSignatureError:
-            pass
-
-        try:
-            user = AppUser.objects.get(id=user_id)
-        except AppUser.DoesNotExist:
-            print("User not found.")
-
-        queryset = UserHistory.objects.filter(user_id=user)
+        response = self.create_user_history_response(paginated_data, next_page_url, previous_page_url)
+        return response
+    
+    def serialize_history(self, user_history):
+        return {
+            'id': user_history.id,
+            'word_english': user_history.translation_id.word_id.label_en,
+            'language': user_history.translation_id.target_lang_id.lang,
+            'word_translated': user_history.translation_id.label_target,
+            'created_at': user_history.created_at,
+            'is_favorite': user_history.is_favorite,
+            'image_url': user_history.img_path
+        }
+    
+    def paginate_history_item(self, queryset, page, language_filter):
         if language_filter:
             queryset = queryset.filter(translation_id__target_lang_id__lang=language_filter)
 
         total_items = queryset.count()
-        max_page = max((total_items - 1) // page_size + 1, 1)
+        max_page = max((total_items - 1) // self.page_size + 1, 1)
 
         page = min(max(int(page), 1), max_page)
-        lower_bound = (page - 1) * page_size
-        upper_bound = lower_bound + page_size
+        lower_bound = (page - 1) * self.page_size
+        upper_bound = lower_bound + self.page_size
 
-        user_history = queryset[lower_bound:upper_bound]
+        subset = queryset[lower_bound:upper_bound]   
 
-        history_list = []
-        for user_history in user_history:
-            history_object = {
-                'id': user_history.id,
-                'word_english': user_history.translation_id.word_id.label_en,
-                'language': user_history.translation_id.target_lang_id.lang,
-                'word_translated': user_history.translation_id.label_target,
-                'created_at': user_history.created_at,
-                'is_favorite': user_history.is_favorite,
-                'image_url': user_history.img_path
-            }
-
-            history_list.append(history_object)
+        history_list = [self.serialize_history(item) for item in subset] 
 
         next_page = int(page) + 1 if page < max_page else None
         previous_page = max(int(page) - 1, 1)
 
-        base_url = "http://localhost:8000/api/get_user_history/"
-        next_page_url = f"{base_url}?language_filter={language_filter}&page={next_page}"
-        previous_page_url = f"{base_url}?language_filter={language_filter}&page={previous_page}"
+        next_page_url = f"{self.base_url}?language_filter={language_filter}&page={next_page}"
+        previous_page_url = f"{self.base_url}?language_filter={language_filter}&page={previous_page}"
+
+        return history_list, next_page_url, previous_page_url
     
+    def create_user_history_response(self, paginated_data, next_page_url, previous_page_url):
         response = Response()
         response.data = {
-            'history': history_list,
+            'history': paginated_data,
             'next_page_url': next_page_url,
             'previous_page_url': previous_page_url,
         }
-
         return response
     
 class GetUserHistoryItem(APIView):
