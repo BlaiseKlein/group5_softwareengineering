@@ -6,7 +6,7 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import "./index.css";
 
 // Layout
-import AppLayout from "./components/layout/AppLayout";
+import AppLayout from "./components/nav/AppLayout";
 
 // Routes 
 // Basic
