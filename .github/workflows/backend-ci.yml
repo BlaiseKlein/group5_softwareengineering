@@ -16,11 +16,11 @@ jobs:
         run: docker compose up -d --build
 
       - name: Wait for backend to start
-        run: sleep 10
+        run: sleep 15
 
       - name: Run Django Tests
-        run: docker compose exec -T backend python manage.py test
+        run: docker compose exec -T django-web python manage.py test fango --verbosity=2
 
-      - name: Close containers
+      - name: Stop containers
         if: always()
         run: docker compose down
