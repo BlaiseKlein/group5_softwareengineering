@@ -1,3 +1,6 @@
+/**
+ * This page is a part of sign up.
+ */
 import React from "react";
 import SpringMotionLayout from "../../components/animation/SpringMotionLayout";
 import PasswordInputStep from "../../components/utils/PasswordInputStep";
@@ -6,21 +9,40 @@ import type { StepProps } from "./Types";
 
 export default function PasswordStep({ onNext, onPrev }: StepProps) {
   const [password, setPassword] = React.useState("");
-  const { update, data } = useSignup();
+  const { update, data } = useSignup() ?? {};
 
   React.useEffect(() => {
-    if (data?.password) setPassword(data.password);
+    try {
+      if (data?.password) setPassword(data.password);
+    } catch (err) {
+      console.error("[PasswordStep] Failed to initialize password:", err);
+    }
   }, [data?.password]);
 
   const validatePassword = (s: string) => {
     if (!s) return "Please enter a password.";
-    if (s.length < 8) return "Password must be at least 8 characters.";
+    if (s.trim().length < 8) return "Password must be at least 8 characters.";
     return null;
   };
-
+  
   const submitPassword = async (cleanPassword: string) => {
-    update({ password: cleanPassword });
-    onNext(); 
+    try {
+      const trimmed = (cleanPassword ?? "").trim();
+      const errMsg = validatePassword(trimmed);
+      if (errMsg) throw new Error(errMsg);
+
+      if (typeof update !== "function") {
+        console.error("[PasswordStep] Signup context not ready — cannot update password.");
+        alert("Signup system not ready. Please refresh and try again.");
+        return;
+      }
+
+      await Promise.resolve(update({ password: trimmed }));
+      onNext?.();
+    } catch (err) {
+      console.error("[PasswordStep] Failed to submit password:", err);
+      alert((err as Error).message || "An error occurred while saving your password.");
+    }
   };
 
   return (
@@ -30,11 +52,23 @@ export default function PasswordStep({ onNext, onPrev }: StepProps) {
     >
       <PasswordInputStep
         value={password}
-        onChange={setPassword}
+        onChange={(v) => {
+          try {
+            setPassword(v);
+          } catch (err) {
+            console.error("[PasswordStep] Failed to update password state:", err);
+          }
+        }}
         inputName="password"
         placeholder="password"
         autoComplete="new-password"
-        onPrevious={onPrev}
+        onPrevious={() => {
+          try {
+            onPrev?.();
+          } catch (err) {
+            console.error("[PasswordStep] Previous navigation failed:", err);
+          }
+        }}
         onSubmit={submitPassword}
         validate={validatePassword}
         submitLabel="Next →"

@@ -1,3 +1,6 @@
+/**
+ * This page is a part of sign up.
+ */
 import React from "react";
 import SpringMotionLayout from "../../components/animation/SpringMotionLayout";
 import TextInputStep from "../../components/utils/TextInputStep";
@@ -6,10 +9,14 @@ import type { StepProps } from "./Types";
 
 export default function EmailStep({ onNext, onPrev }: StepProps) {
   const [email, setEmail] = React.useState("");
-  const { update, data } = useSignup();
+  const { update, data } = useSignup() ?? {};
 
   React.useEffect(() => {
-    if (data?.email) setEmail(data.email);
+    try {
+      if (data?.email) setEmail(data.email);
+    } catch (err) {
+      console.error("[EmailStep] Failed to initialize email:", err);
+    }
   }, [data?.email]);
 
   const validateEmail = (s: string) => {
@@ -21,8 +28,21 @@ export default function EmailStep({ onNext, onPrev }: StepProps) {
   };
 
   const submitEmail = async (cleanEmail: string) => {
-    update({ email: cleanEmail });
-    onNext();
+    try {
+      if (!cleanEmail) throw new Error("Email is empty.");
+
+      if (typeof update !== "function") {
+        console.error("[EmailStep] Signup context not ready — cannot update email.");
+        alert("Signup not ready. Please refresh and try again.");
+        return;
+      }
+
+      await Promise.resolve(update({ email: cleanEmail }));
+      onNext?.();
+    } catch (err) {
+      console.error("[EmailStep] Failed to submit email:", err);
+      alert((err as Error).message || "An error occurred while submitting your email.");
+    }
   };
 
   return (
@@ -32,11 +52,23 @@ export default function EmailStep({ onNext, onPrev }: StepProps) {
     >
       <TextInputStep
         value={email}
-        onChange={setEmail}
+        onChange={(v) => {
+          try {
+            setEmail(v);
+          } catch (err) {
+            console.error("[EmailStep] Failed to update email state:", err);
+          }
+        }}
         inputName="email"
         placeholder="your@email.com"
         autoComplete="email"
-        onPrevious={onPrev}
+        onPrevious={() => {
+          try {
+            onPrev?.();
+          } catch (err) {
+            console.error("[EmailStep] Previous navigation failed:", err);
+          }
+        }}
         onSubmit={submitEmail}
         validate={validateEmail}
         submitLabel="Next →"

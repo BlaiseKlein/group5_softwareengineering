@@ -1,3 +1,6 @@
+/**
+ * This page is a part of sign up.
+ */
 import React from "react";
 import SpringMotionLayout from "../../components/animation/SpringMotionLayout";
 import TextInputStep from "../../components/utils/TextInputStep";
@@ -6,21 +9,42 @@ import type { StepProps } from "./Types";
 
 export default function SetUpTargetLan({ onNext, onPrev }: StepProps) {
   const [targetLan, setTargetLan] = React.useState("");
-  const { update, data } = useSignup();
+  const { update, data } = useSignup() ?? {};
 
   React.useEffect(() => {
-    if (data?.targetLan) setTargetLan(data.targetLan);
+    try {
+      if (data?.targetLan) setTargetLan(data.targetLan);
+    } catch (err) {
+      console.error("[SetUpTargetLan] Failed to initialize target language:", err);
+    }
   }, [data?.targetLan]);
 
   const validate = (s: string) => {
-    if (!s) return "Please choose a target language.";
-    if (s.length < 2) return "Language must be at least 2 characters.";
+    const v = (s ?? "").trim();
+    if (!v) return "Please choose a target language.";
+    if (v.length < 2) return "Language must be at least 2 characters.";
+    if (v.length > 64) return "Language name looks too long.";
     return null;
   };
 
   const submitTargetLan = async (cleanTargetLan: string) => {
-    update({ targetLan: cleanTargetLan });
-    onNext(); 
+    try {
+      const trimmed = (cleanTargetLan ?? "").trim();
+      const errMsg = validate(trimmed);
+      if (errMsg) throw new Error(errMsg);
+
+      if (typeof update !== "function") {
+        console.error("[SetUpTargetLan] Signup context not ready — cannot update target language.");
+        alert("Signup system not ready. Please refresh and try again.");
+        return;
+      }
+
+      await Promise.resolve(update({ targetLan: trimmed }));
+      onNext?.();
+    } catch (err) {
+      console.error("[SetUpTargetLan] Failed to submit target language:", err);
+      alert((err as Error).message || "An error occurred while saving your target language.");
+    }
   };
 
   return (
@@ -30,11 +54,23 @@ export default function SetUpTargetLan({ onNext, onPrev }: StepProps) {
     >
       <TextInputStep
         value={targetLan}
-        onChange={setTargetLan}
+        onChange={(v) => {
+          try {
+            setTargetLan(v);
+          } catch (err) {
+            console.error("[SetUpTargetLan] Failed to update target language state:", err);
+          }
+        }}
         inputName="targetlang"
         placeholder="e.g., English, 日本語, 한국어"
         autoComplete="off"
-        onPrevious={onPrev}
+        onPrevious={() => {
+          try {
+            onPrev?.();
+          } catch (err) {
+            console.error("[SetUpTargetLan] Previous navigation failed:", err);
+          }
+        }}
         onSubmit={submitTargetLan}
         validate={validate}
         submitLabel="Next →"
