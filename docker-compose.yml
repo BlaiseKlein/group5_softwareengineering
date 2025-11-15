@@ -13,8 +13,6 @@ services:
      - postgres_data:/var/lib/postgresql/data
      - img_data:/app/images # images stored separately
      - audio_data:/app/audio # audio stored separately
-   env_file:
-     - .env
   
  django-web:
    build: 
