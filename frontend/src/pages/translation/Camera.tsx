@@ -12,6 +12,7 @@
  */
 import { useState, useRef, useEffect } from "react";
 import type { ChangeEvent, FormEvent } from "react";
+import Processing from "./Processing";
 import { useNavigate } from "react-router-dom";
 import { Languages } from "lucide-react";
 import {
@@ -25,6 +26,7 @@ import {
   Trash2,
   Video,
 } from "lucide-react";
+import languages from "../../../data/langauges.json"
 
 interface Picture {
   picturePreview: string;
@@ -37,23 +39,15 @@ export default function CameraPage() {
   const [pendingStream, setPendingStream] = useState<MediaStream | null>(null);
   const [starting, setStarting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [uploadDisabled, setUploadDisabled] = useState(false);
+  const [processing, setProcessing] = useState(false);
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
 
-  const [targetLang, setTargetLang] = useState<string>("en"); 
-  const LANGS = [
-    { code: "en", label: "English" },
-    { code: "ko", label: "Korean" },
-    { code: "ja", label: "Japanese" },
-    { code: "zh", label: "Chinese (Simplified)" },
-    { code: "fr", label: "French" },
-    { code: "es", label: "Spanish" },
-    { code: "de", label: "German" },
-    { code: "it", label: "Italian" },
-  ];
-
+  const [targetLang, setTargetLang] = useState<string>("fr"); 
+  
   // Attach stream to video when ready
   useEffect(() => {
     if (camera && pendingStream && videoRef.current) {
@@ -68,6 +62,7 @@ export default function CameraPage() {
 
   // Cleanup on unmount
   useEffect(() => {
+    request_info()
     return () => {
       streamRef.current?.getTracks().forEach((t) => t.stop());
     };
@@ -131,30 +126,96 @@ export default function CameraPage() {
     console.log("Clear image")
   };
 
-  const navigate = useNavigate();
-
   const handleUpload = async (e: FormEvent<HTMLFormElement>) => {
+    console.log("Clicked!")
     e.preventDefault();
     if (!picture) return;
 
     const formData = new FormData();
     formData.append("file", picture.pictureAsFile);
-    formData.append("target_lang", targetLang); 
+    const selectedLabel = languages.find(lang => lang.code === targetLang)?.label;
+    if (selectedLabel) {
+      formData.append("target_lang", selectedLabel);
+    }
+    formData.append("target_lang_code", targetLang)
+
+    setUploadDisabled(true);
+    setProcessing(true);
 
     try {
       const response = await fetch("http://localhost:8000/api/image-translate/", {
         method: "POST",
         body: formData,
+        credentials: 'include'
       });
-      const responseData = await response.json();
-      if (responseData) {
-        navigate("/translation/result", { state: { data: responseData } });
+
+      if (response.status == 429) {
+        const responseData = await response.json();
+        setProcessing(false);
+        alert(`${responseData.detail}. Retry after ${responseData.retry_after} seconds.`);
+        return;
       }
+
+      if(!response.ok) {
+        const errorData = await response.json()
+        console.error("Error uploading: ", errorData)
+        setUploadDisabled(false);
+        setProcessing(false);
+        return;
+      }
+
+      const responseData = await response.json();
+
+      const historyId = responseData.user_history_id;
+
+      window.location.href = `/user/userhistory/${historyId}`
+
     } catch (error) {
       console.error("Upload failed", error);
       setErrorMsg("Upload failed. Please try again.");
+      setUploadDisabled(false);
+      setProcessing(false);
     }
   };
+
+  if(processing) {
+    return <Processing />
+  }
+
+  const request_info = async() => {
+    const response = await fetch(import.meta.env.VITE_SERVER_URL + "/get_user_info", {
+        credentials: 'include',
+      }
+    )
+    .then(function(response) { 
+      if (response.status == 401) {
+        window.location.href = "/login";
+        return;
+      }
+      if (response.status == 429) {
+        response.json().then(function(data) {
+          alert(`${data.detail}. Retry after ${data.retry_after} seconds.`);
+        });
+        return;
+      }
+
+      return response.json();
+    })
+    .then(function(json) {
+      // use the json
+      let found = languages.find(({ code, label }) => 
+        {
+          return label == json.default_language
+        }
+      )
+      // console.log(languages)
+      // console.log(found)
+      // console.log(json.default_language)
+      if (found !== undefined){
+        setTargetLang(found.code)
+      }
+    });
+  }
 
   return (
     <div className="min-h-screen mx-auto w-full max-w-[1080px] bg-gradient-to-b from-indigo-50 via-white to-white py-8">
@@ -290,7 +351,8 @@ export default function CameraPage() {
                 <>
                   <button
                     type="submit"
-                    className="inline-flex items-center gap-2 rounded-full bg-gray-900 px-5 py-2 text-sm font-medium text-white shadow hover:bg-gray-800"
+                    className="inline-flex items-center gap-2 rounded-full bg-gray-900 px-5 py-2 text-sm font-medium text-white shadow hover:bg-gray-800 disabled:opacity-50"
+                    disabled={uploadDisabled}
                   >
                     <Check size={16} />
                     Upload
@@ -335,7 +397,7 @@ export default function CameraPage() {
                   onChange={(e) => setTargetLang(e.target.value)}
                   className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 >
-                  {LANGS.map(({ code, label }) => (
+                  {languages.map(({ code, label }) => (
                     <option key={code} value={code}>{label}</option>
                   ))}
                 </select>
