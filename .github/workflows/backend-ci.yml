@@ -7,25 +7,27 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    env:
-      DJANGO_SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
-      DEBUG: "True"
-      DJANGO_LOGLEVEL: ${{ secrets.DJANGO_LOGLEVEL }}
-      DJANGO_ALLOWED_HOSTS: ${{ secrets.DJANGO_ALLOWED_HOSTS }}
-      DATABASE_ENGINE: ${{ secrets.DATABASE_ENGINE }}
-      DATABASE_NAME: ${{ secrets.DATABASE_NAME }}
-      DATABASE_USERNAME: ${{ secrets.DATABASE_USERNAME }}
-      DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
-      DATABASE_HOST: ${{ secrets.DATABASE_HOST }}
-      DATABASE_PORT: ${{ secrets.DATABASE_PORT }}
-      DATABASE_URL: ${{ secrets.DATABASE_URL }}
-      REDIS_HOST: ${{ secrets.REDIS_HOST }}
-      REDIS_PORT: ${{ secrets.REDIS_PORT }}
-      REDIS_DB: ${{ secrets.REDIS_DB }}
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Create temporary .env file
+        run: |
+          echo "DJANGO_SECRET_KEY=${{ secrets.DJANGO_SECRET_KEY }}" >> .env
+          echo "DEBUG=True" >> .env
+          echo "DJANGO_LOGLEVEL=${{ secrets.DJANGO_LOGLEVEL }}" >> .env
+          echo "DJANGO_ALLOWED_HOSTS=${{ secrets.DJANGO_ALLOWED_HOSTS }}" >> .env
+          echo "DATABASE_ENGINE=${{ secrets.DATABASE_ENGINE }}" >> .env
+          echo "DATABASE_NAME=${{ secrets.DATABASE_NAME }}" >> .env
+          echo "DATABASE_USERNAME=${{ secrets.DATABASE_USERNAME }}" >> .env
+          echo "DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }}" >> .env
+          echo "DATABASE_HOST=${{ secrets.DATABASE_HOST }}" >> .env
+          echo "DATABASE_PORT=${{ secrets.DATABASE_PORT }}" >> .env
+          echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> .env
+          echo "REDIS_HOST=${{ secrets.REDIS_HOST }}" >> .env
+          echo "REDIS_PORT=${{ secrets.REDIS_PORT }}" >> .env
+          echo "REDIS_DB=${{ secrets.REDIS_DB }}" >> .env
 
       - name: Build and start containers
         run: docker compose up -d --build
@@ -38,7 +40,7 @@ jobs:
         run: docker compose logs django-web
 
       - name: Run Django Tests
-        run: docker compose exec -T fango-back python manage.py test fango --verbosity=2
+        run: docker compose exec -T django-web python manage.py test fango --verbosity=2
 
       - name: Stop containers
         if: always()
