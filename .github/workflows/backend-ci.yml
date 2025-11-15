@@ -29,11 +29,12 @@ jobs:
           echo "REDIS_PORT=${{ secrets.REDIS_PORT }}" >> .env
           echo "REDIS_DB=${{ secrets.REDIS_DB }}" >> .env
 
-      - name: Move .env into backend
-        run: mv .env backend/.env
+      - name: Verify secret exists
+        run: |
+          echo "DJANGO_ALLOWED_HOSTS=${{ secrets.DJANGO_ALLOWED_HOSTS }}"
 
       - name: Build and start containers
-        run: docker compose --env-file backend/.env up -d --build
+        run: docker compose --env-file .env up -d --build
 
       - name: Wait for backend to start
         run: sleep 15
