@@ -1,10 +1,10 @@
-// SignupLayout.tsx
+/**
+ * This page defines sing up step components and gives signup layout.
+ */
 import { useState } from "react";
 import type { ComponentType } from "react";
 import type { StepProps } from "./Types";
-
 import NameStep from "./NameStep";
-// import EmailStep from "./EmailStep";
 import PasswordStep from "./PasswordStep";
 import SetUpTargetLan from "./SetUpTargetLan";
 import SignUpGoal from "./SignUpGoal";
@@ -13,7 +13,6 @@ import SignUpAllSet from "./SignUpAllSet";
 
 const steps: ComponentType<StepProps>[] = [
   NameStep,
-  // EmailStep,
   PasswordStep,
   SetUpTargetLan,
   SignUpGoal,
