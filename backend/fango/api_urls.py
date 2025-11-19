@@ -14,4 +14,5 @@ urlpatterns = [
     path('', include('image_handling.urls')),
     path('get_user_history/<int:history_id>', GetUserHistoryItem.as_view(), name='get_user_history_item'),
     path('userlearninginfo', UserLearningInfo.as_view(), name='userlearninginfo'),
+    path('auth', AuthCheck.as_view(), name='auth'),
 ]
