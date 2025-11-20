@@ -11,12 +11,15 @@ export default function SignUpAllSet({ onNext }: StepProps) {
 
     // Connect with backend
     const submitAll = async () => {
+      // let jsonData = JSON.stringify(data);
+      // let filtering = JSON.parse(jsonData)
+      // delete filtering['goals']
+      // jsonData = JSON.stringify(filtering)
       try {
-        const res = await fetch(`...`, {
-          method: "POST",
+        const res = await fetch(import.meta.env.VITE_SERVER_URL + "/register", {
+          method: "post",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(data), // { username, email, password, targetLan, goals, difficulty }
-          credentials: "include",
         });
 
         // test
@@ -44,7 +47,7 @@ export default function SignUpAllSet({ onNext }: StepProps) {
 
   return (
     <SpringMotionLayout
-      titleLines={[`${data.username || "User"},`, "You're", "All Set!"]}
+      titleLines={[`${data.name || "User"},`, "You're", "All Set!"]}
       imageSrc="https://preview.redd.it/what-is-your-opinion-on-pingu-v0-tmg61ucmri3d1.png?auto=webp&s=bd2b54bbba31c4d3d0bb459bced615e594a5c1ff"
     >
       <p>Finishing your account…</p>
