@@ -227,12 +227,12 @@ class GetUserHistory(APIView):
         history_list = [self.serialize_history(item) for item in subset] 
 
         next_page = int(page) + 1 if page < max_page else None
-        previous_page = max(int(page) - 1, 1)
+        # previous_page = max(int(page) - 1, 1)
+        previous_page = int(page) - 1 if int(page) - 1 > 0 else None
 
-        next_page_url = f"{self.base_url}?language_filter={language_filter}&page={next_page}"
-        previous_page_url = f"{self.base_url}?language_filter={language_filter}&page={previous_page}"
-
-        return history_list, next_page_url, previous_page_url, max_page
+        base_url = "http://localhost:8000/api/get_user_history/"
+        next_page_url = f"{base_url}?language_filter={language_filter}&page={next_page}" if next_page != None else ""
+        previous_page_url = f"{base_url}?language_filter={language_filter}&page={previous_page}" if previous_page != None else ""
     
     def create_user_history_response(self, paginated_data, next_page_url, previous_page_url, max_page):
         response = Response()
