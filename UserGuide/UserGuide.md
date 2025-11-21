@@ -12,7 +12,32 @@ Anyone using the `FANGO` mobile or web app to translate objects, learn vocabular
 
 ## 2. Getting Started
 ### Creating an Account
+![Login Page](src/login.png)
+- The very first page 
+- User needs to tap / click "Sign Up" for creating a new account
+
+![Signup Page](src/signup_name.png)
+
+- user needs to fill up blanks for name, password ...
+- hit next button whenever they're done
+
+
+![Sign Up Process Is Done](src/signup_allset.png)
+- if user sees 'You're All Set!' page, they're done
+- it will navigate a user to a quick tour (user guide) automatically 
+
+### Quick Guide
+![Quick Guide After Sign Up](src/signup_quickguide.png)
+- Quick Guide will show users how to navigate the app
+- User can skip with Skip button
+- use Back or Next buttons for Quick Guide
+- They can pull up user guide anytime on the landing page
+
 ### Logging in
+- hit sign in button with proper email and password
+![Signup Page](src/signup_name.png)
+- 
+
 
 ## 3. Using FANGO in the Real World
 ### Taking or Uploading Pictures
