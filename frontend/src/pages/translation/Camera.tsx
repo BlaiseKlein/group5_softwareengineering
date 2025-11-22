@@ -200,13 +200,18 @@ export default function CameraPage() {
     try {
       const formData = new FormData();
       formData.append("file", picture.pictureAsFile);
-      formData.append("target_lang", targetLang);
+      const selectedLabel = languages.find(lang => lang.code === targetLang)?.label;
+      if (selectedLabel) {
+        formData.append("target_lang", selectedLabel);
+      }
+      formData.append("target_lang_code", targetLang)
 
       const response = await fetch(
         "http://localhost:8000/api/image-translate/",
         {
           method: "POST",
           body: formData,
+          credentials: "include"
         }
       );
 
@@ -214,12 +219,12 @@ export default function CameraPage() {
         throw new Error(`Server responded with status ${response.status}`);
       }
 
-      const responseData = await response.json();
-      if (responseData) {
-        navigate("/translation/result", { state: { data: responseData } });
-      } else {
-        throw new Error("Empty response from server");
-      }
+      // const responseData = await response.json();
+      // if (responseData) {
+      //   navigate("/translation/result", { state: { data: responseData } });
+      // } else {
+      //   throw new Error("Empty response from server");
+      // }
 
       if(!response.ok) {
         const errorData = await response.json()
@@ -229,11 +234,11 @@ export default function CameraPage() {
         return;
       }
 
-      // const responseData = await response.json();
+      const responseData = await response.json();
 
-      // const historyId = responseData.user_history_id;
+      const historyId = responseData.user_history_id;
 
-      // window.location.href = `/user/userhistory/${historyId}`
+      window.location.href = `/user/userhistory/${historyId}`
 
     } catch (error) {
       console.error("Upload failed", error);
