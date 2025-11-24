@@ -35,6 +35,7 @@ export default function SignUpAllSet() {
       } catch (e) {
         console.error(e);
         console.error("Could not complete signup. Please try again.");
+        window.alert("Signup failed")
       }
     };
 
@@ -42,7 +43,7 @@ export default function SignUpAllSet() {
     return () => {
       cancelled = true;
     };
-  }, [data, reset]);
+  }, []);
 
   return (
     <SpringMotionLayout
