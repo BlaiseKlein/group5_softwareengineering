@@ -228,7 +228,7 @@ export default function CameraPage() {
         return;
       }
 
-      const responseData = await response.json();
+      // const responseData = await response.json();
 
       const historyId = responseData.user_history_id;
 
