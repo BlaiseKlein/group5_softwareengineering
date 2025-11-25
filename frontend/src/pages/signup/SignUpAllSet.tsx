@@ -18,6 +18,10 @@ export default function SignUpAllSet({ onPrev }: StepProps) {
     let redirectTimer: number | null = null;
 
     const submitAll = async () => {
+      // let jsonData = JSON.stringify(data);
+      // let filtering = JSON.parse(jsonData)
+      // delete filtering['goals']
+      // jsonData = JSON.stringify(filtering)
       try {
         const res = await fetch(import.meta.env.VITE_SERVER_URL + "/register", {
           method: "POST",
@@ -40,8 +44,9 @@ export default function SignUpAllSet({ onPrev }: StepProps) {
           }, 1500);
         }
       } catch (e) {
-        console.error("Signup failed:", e);
-        setError("We couldn't complete your signup.");
+        console.error(e);
+        console.error("Could not complete signup. Please try again.");
+        window.alert("Signup failed")
       }
     };
 
@@ -51,7 +56,7 @@ export default function SignUpAllSet({ onPrev }: StepProps) {
       cancelled = true;
       if (redirectTimer) clearTimeout(redirectTimer);
     };
-  }, [data, reset]);
+  }, []);
 
   const renderErrorModal = () => (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">

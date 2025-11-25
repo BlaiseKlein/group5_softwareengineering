@@ -6,6 +6,8 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import QuickGuide from "./pages/quickguide/QuickGuide";
 import Card from './components/card/Cards';
 import GalleryPage from './components/card/GalleryPage';
+import { Camera } from "lucide-react";
+import Logout from './components/Logout';
 
 export default function Landing() {
   const [params, setParams] = useSearchParams();
@@ -16,7 +18,7 @@ export default function Landing() {
     <div className="min-h-screen bg-white">
       {showGuide && <QuickGuide />}
 
-      <main className="mx-auto w-full max-w-[1080px] px-5 pb-24">
+      {/* <main className="mx-auto w-full max-w-[1080px] px-5 pb-24">
         <section className="pt-6">
           <h1
             className="text-4xl font-extrabold leading-tight tracking-tight"
@@ -24,8 +26,7 @@ export default function Landing() {
           >
             Olá,<br />
             <span>Username!</span>
-          </h1>
-        </section>
+          </h1> */}
 
         <section>
           <div className="mt-2 flex items-center justify-between text-sm text-gray-600">
@@ -35,6 +36,21 @@ export default function Landing() {
               data-guide="quick-guide-button"
             >
               Quick Guide <span aria-hidden>→</span>
+            </button>
+            <div className="absolute top-4 right-4 z-50">
+              <Logout />
+            </div>  
+            <button
+              className="inline-flex items-center gap-2"
+              data-guide="target-language"
+              onClick={() => alert("open language picker")}
+            >
+            
+
+            {/* Dynamic data needed */}
+              <span>Target Language:</span>
+              <span role="img" aria-label="Portuguese flag">🇵🇹</span>
+              <span aria-hidden>✎</span>
             </button>
           </div>
         </section>
