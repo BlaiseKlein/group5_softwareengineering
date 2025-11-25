@@ -24,23 +24,23 @@ export default function Login() {
         return;
       }
 
-      let hashedPassword = "";
-      try {
-        hashedPassword = bcrypt.hashSync(
-          password,
-          "$2a$10$CwTycUXWue0Thq9StjUM0u"
-        );
-      } catch (err) {
-        console.error("Password hashing failed:", err);
-        setErrorMsg(`Failed to process password. Try again.`);
-        return;
-      }
+      // let hashedPassword = "";
+      // try {
+      //   hashedPassword = bcrypt.hashSync(
+      //     password,
+      //     "$2a$10$CwTycUXWue0Thq9StjUM0u"
+      //   );
+      // } catch (err) {
+      //   console.error("Password hashing failed:", err);
+      //   setErrorMsg(`Failed to process password. Try again.`);
+      //   return;
+      // }
 
       let jsonData = "";
       try {
         jsonData = JSON.stringify({
           email,
-          password: hashedPassword,
+          password: password,
         });
       } catch (err) {
         console.error("JSON stringify failed:", err);

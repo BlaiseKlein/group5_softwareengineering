@@ -18,8 +18,9 @@ export default function Landing() {
     <div className="min-h-screen bg-white">
       {showGuide && <QuickGuide />}
 
-      {/* <main className="mx-auto w-full max-w-[1080px] px-5 pb-24">
-        <section className="pt-6">
+      <main className="mx-auto w-full max-w-[1080px] px-5 pb-24">
+        {/* <section className="pt-6"> */}
+          {/* 
           <h1
             className="text-4xl font-extrabold leading-tight tracking-tight"
             data-guide="welcome-title"
