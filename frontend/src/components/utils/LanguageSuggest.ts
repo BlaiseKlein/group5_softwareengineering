@@ -86,6 +86,88 @@ const ALIASES: Record<string, string> = {
   bn: "Bengali", bangla: "Bengali",
 };
 
+const LANGUAGE_FLAGS: Record<
+  string,
+  { flag: string; code: string }
+> = {
+  English:    { flag: "🇺🇸", code: "EN" },
+  Korean:     { flag: "🇰🇷", code: "KO" },
+  Japanese:   { flag: "🇯🇵", code: "JA" },
+  Chinese:    { flag: "🇨🇳", code: "ZH" },
+  French:     { flag: "🇫🇷", code: "FR" },
+  Spanish:    { flag: "🇪🇸", code: "ES" },
+  German:     { flag: "🇩🇪", code: "DE" },
+  Italian:    { flag: "🇮🇹", code: "IT" },
+  Portuguese: { flag: "🇵🇹", code: "PT" },
+  Russian:    { flag: "🇷🇺", code: "RU" },
+  Arabic:     { flag: "🇸🇦", code: "AR" },
+  Hindi:      { flag: "🇮🇳", code: "HI" },
+  Thai:       { flag: "🇹🇭", code: "TH" },
+  Vietnamese: { flag: "🇻🇳", code: "VI" },
+  Indonesian: { flag: "🇮🇩", code: "ID" },
+  Dutch:      { flag: "🇳🇱", code: "NL" },
+  Polish:     { flag: "🇵🇱", code: "PL" },
+  Swedish:    { flag: "🇸🇪", code: "SV" },
+  Greek:      { flag: "🇬🇷", code: "EL" },
+  Hebrew:     { flag: "🇮🇱", code: "HE" },
+  Malay:      { flag: "🇲🇾", code: "MS" },
+  Bengali:    { flag: "🇧🇩", code: "BN" },
+  Urdu:       { flag: "🇵🇰", code: "UR" },
+  Turkish:    { flag: "🇹🇷", code: "TR" },
+};
+
+export type LanguageMeta = {
+  label: string; // e.g. "French"
+  code: string;  // e.g. "FR"
+  flag: string;  // e.g. "🇫🇷"
+};
+
+export function getLanguageMeta(raw: string | null | undefined): LanguageMeta | null {
+  if (!raw) return null;
+
+  const q = normalize(raw);
+
+  // 1) Try alias (en, fr, pt, etc.)
+  let label = ALIASES[q];
+
+  // 2) Try direct match to LANGUAGES
+  if (!label) {
+    label = LANGUAGES.find(l => normalize(l) === q) || undefined;
+  }
+
+  // 3) If still nothing and looks like a 2-letter code, map a few common ones
+  if (!label && q.length <= 3) {
+    const codeMap: Record<string, string> = {
+      en: "English",
+      fr: "French",
+      pt: "Portuguese",
+      es: "Spanish",
+      de: "German",
+      it: "Italian",
+      ko: "Korean",
+      ja: "Japanese",
+      zh: "Chinese",
+      ru: "Russian",
+      ar: "Arabic",
+      hi: "Hindi",
+    };
+    label = codeMap[q];
+  }
+
+  if (!label) return null;
+
+  const meta = LANGUAGE_FLAGS[label] || {
+    flag: "🏳️",                  // fallback generic flag
+    code: raw.toString().toUpperCase(),
+  };
+
+  return {
+    label,
+    code: meta.code,
+    flag: meta.flag,
+  };
+}
+
 function lev(a: string, b: string) {
   a = a.toLowerCase();
   b = b.toLowerCase();
@@ -128,3 +210,4 @@ export function suggestLanguages(query: string) {
 
   return scored.slice(0, 6);
 }
+

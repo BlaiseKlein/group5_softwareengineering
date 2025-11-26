@@ -3,16 +3,63 @@
  */
 import './landing.css';
 import { useSearchParams, useNavigate } from "react-router-dom";
+import { useEffect, useState } from 'react';
+import { getLanguageMeta } from "../src/components/utils/LanguageSuggest"
 import QuickGuide from "./pages/quickguide/QuickGuide";
-import Card from './components/card/Cards';
+import Loading from '../src/pages/status/Loading';
 import GalleryPage from './components/card/GalleryPage';
-import { Camera } from "lucide-react";
+import Card from './components/card/Cards';
 import Logout from './components/Logout';
 
 export default function Landing() {
   const [params, setParams] = useSearchParams();
+  const [name, setName] = useState("Language Learner");
+  const [lang, setLang] = useState("FR");
+  const [loading, setLoading] = useState(true);
   const showGuide = params.get("guide") === "1";
   const navigate = useNavigate();
+  const langMeta = getLanguageMeta(lang);
+  const displayFlag = langMeta?.flag ?? "🏳️";
+  const displayCode = langMeta?.code ?? lang.toUpperCase();
+  const displayName = langMeta?.label ?? "Unknown";
+
+  const request_info = async() => {
+      const response = await fetch(import.meta.env.VITE_SERVER_URL + "/userlearninginfo", {
+          method: "get",
+          headers: {"Content-Type": "application/json"},
+          credentials: 'include',
+        }
+      )
+      .then(function(response) { 
+        if (response.status == 401) {
+          window.location.href = "/login";
+          return;
+        }
+        if (response.status == 429) {
+          response.json().then(function(data) {
+            alert(`${data.detail}. Retry after ${data.retry_after} seconds.`);
+          });
+          return;
+        }
+        return response.json();
+      })
+      .then(function(json) {
+        setName(json.user_info.name);
+        setLang(json.user_info.default_lang_id);
+      });
+      setLoading(false);
+    }
+  
+    useEffect(()=>{
+      const timer = setTimeout(() => {
+        request_info();
+      }, 1200);
+      return () => clearTimeout(timer);
+    }, [])
+  
+    if (loading) {
+      return <Loading />;
+    }
 
   return (
     <div className="min-h-screen bg-white">
@@ -22,19 +69,18 @@ export default function Landing() {
         <section className="flex justify-between align-text-bottom pt-10">
           <div className="text-left">
             <h1
-            className="text-4xl font-extrabold leading-tight tracking-tight"
+            className="text-4xl font-extrabd leading-tight tracking-tight"
             data-guide="welcome-title"
             >
-              Olá,<br />
-              <span>Username!</span>
+              Hello,<br />
+              {name}!
             </h1>
           </div>
 
            <div className="text-right text-sm text-gray-600">
-                <Logout />
+              <Logout />
            </div> 
- 
-          </section>
+        </section>
 
         <section>
           <div className="mt-2 flex items-center justify-between text-sm text-gray-600">
@@ -49,12 +95,10 @@ export default function Landing() {
             <button
               className="inline-flex items-center gap-2"
               data-guide="target-language"
-              onClick={() => alert("open language picker")}
+              onClick={() => navigate("/user/userlearninginfo")}
             >
-            
-            {/* Dynamic data needed */}
               <span>Target Language:</span>
-              <span role="img" aria-label="Portuguese flag">🇵🇹</span>
+              <span role="img" aria-label={`${displayName} flag`}> {displayFlag} {displayCode} </span>
               <span aria-hidden>✎</span>
             </button>
           </div>

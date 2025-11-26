@@ -86,6 +86,8 @@ export default function UserLearningInfo() {
 
     setName(data.user_info.name);
     setLanguages(Object.values(data.languages));
+  
+    console.log(data.user_info);
     const defaultLangId = data.user_info.default_lang_id;
     setdefaultLangId(defaultLangId)
     if (defaultLangId && data.languages) {
