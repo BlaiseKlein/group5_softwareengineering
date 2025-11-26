@@ -36,13 +36,6 @@ pipeline {
             }
         }
 
-        stage('Test Docker') {
-            steps {
-                sh 'which docker || echo "Docker not found"'
-                sh 'docker --version || echo "Docker CLI not available"'
-            }
-        }
-
         stage('Build Containers'){
             steps {
                 sh "docker compose --env-file .env up -d --build"
