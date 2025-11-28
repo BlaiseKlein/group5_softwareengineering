@@ -1,3 +1,33 @@
+# Directory Structure
+backend
+├── fango - Django code used in primary app usage and backend handling
+│   ├── middleware
+│   └── migrations
+├── image_handling - Django code used in image translation
+│   ├── migrations
+│   ├── services
+│   └── tests
+└── media
+    └── images
+
+frontend
+├── data - Holds language and country lists
+└── src
+    ├── assets - Images used in components
+    ├── components - Reusable React components
+    │   ├── animation
+    │   ├── card
+    │   ├── checkbox
+    │   ├── nav
+    │   └── utils
+    └── pages - Main endpoint components and their subcomponents
+        ├── quickguide
+        ├── quiz
+        ├── signup
+        ├── status
+        ├── translation
+        └── user
+
 # Setting up the database locally
 
 Ensure docker is installed.
@@ -18,6 +48,18 @@ docker compose run django-web python manage.py makemigrations
 
 docker compose run django-web python manage.py migrate
 
+Also, run the following to insert the language mock data:
+docker compose run -it django-web python manage.py shell
+exec(open("fango/insert_mock_languages.py").read())
+exit()
+
+## A note about rate limiting
+
+By default rate limiting is active and may stop a user from using features too often.
+If this is causing errors comment out the follow line:
+    'fango.middleware.RateLimitMiddleware.RateLimitMiddleware',
+In the file /backend/fango/settings.py
+
 ## Starting container after first time:
 
 Start services in .docker-compose.yml in -d detached mode, which runs containers in background
@@ -26,7 +68,7 @@ docker compose up -d
 
 If successful, you should see the container, group5_softwareengineering in Docker.
 
-try at localhost:8000/api/persons
+try at localhost:3000/signup
 
 ---
 
