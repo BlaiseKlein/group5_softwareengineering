@@ -3,15 +3,69 @@
  * This page is paired with TextInputStep.tsx
  */
 export const LANGUAGES = [
-  "English", "Korean", "Japanese", "Chinese", "French", "Spanish", "German", 
-  "Italian", "Portuguese", "Russian", "Arabic", "Hindi", "Thai", "Vietnamese",
-  "Tagalog", "Indonesian", "Turkish", "Dutch", "Polish", "Swedish", "Greek",
-  "Hebrew", "Malay", "Bengali", "Urdu", "Tamil", "Telugu", "Marathi", "Punjabi",
-  "Gujarati", "Kannada", "Malayalam", "Sinhala", "Nepali", "Burmese", "Khmer",
-  "Lao", "Mongolian", "Persian", "Pashto", "Kurdish", "Ukrainian", "Czech",
-  "Slovak", "Hungarian", "Romanian", "Bulgarian", "Serbian", "Croatian", "Bosnian",
-  "Finnish", "Danish", "Norwegian", "Icelandic", "Swahili", "Zulu", "Xhosa",
-  "Afrikaans", "Hausa", "Amharic", "Somali", "Yoruba", "Igbo"
+  "Afrikaans",
+  "Amharic",
+  "Arabic",
+  "Bengali",
+  "Bosnian",
+  "Bulgarian",
+  "Burmese",
+  "Chinese",
+  "Croatian",
+  "Czech",
+  "Danish",
+  "Dutch",
+  "English",
+  "Finnish",
+  "French",
+  "German",
+  "Greek",
+  "Gujarati",
+  "Hausa",
+  "Hebrew",
+  "Hindi",
+  "Hungarian",
+  "Icelandic",
+  "Igbo",
+  "Indonesian",
+  "Italian",
+  "Japanese",
+  "Kannada",
+  "Khmer",
+  "Korean",
+  "Kurdish",
+  "Lao",
+  "Malay",
+  "Malayalam",
+  "Marathi",
+  "Mongolian",
+  "Nepali",
+  "Norwegian",
+  "Pashto",
+  "Persian",
+  "Polish",
+  "Portuguese",
+  "Punjabi",
+  "Romanian",
+  "Russian",
+  "Serbian",
+  "Sinhala",
+  "Slovak",
+  "Somali",
+  "Spanish",
+  "Swahili",
+  "Swedish",
+  "Tagalog",
+  "Tamil",
+  "Telugu",
+  "Thai",
+  "Turkish",
+  "Ukrainian",
+  "Urdu",
+  "Vietnamese",
+  "Xhosa",
+  "Yoruba",
+  "Zulu"
 ];
 
 // Extended aliases & common names
@@ -117,9 +171,9 @@ const LANGUAGE_FLAGS: Record<
 };
 
 export type LanguageMeta = {
-  label: string; // e.g. "French"
-  code: string;  // e.g. "FR"
-  flag: string;  // e.g. "🇫🇷"
+  label: string; 
+  code: string; 
+  flag: string;  
 };
 
 export function getLanguageMeta(raw: string | null | undefined): LanguageMeta | null {
@@ -127,15 +181,10 @@ export function getLanguageMeta(raw: string | null | undefined): LanguageMeta | 
 
   const q = normalize(raw);
 
-  // 1) Try alias (en, fr, pt, etc.)
   let label = ALIASES[q];
-
-  // 2) Try direct match to LANGUAGES
   if (!label) {
     label = LANGUAGES.find(l => normalize(l) === q) || undefined;
   }
-
-  // 3) If still nothing and looks like a 2-letter code, map a few common ones
   if (!label && q.length <= 3) {
     const codeMap: Record<string, string> = {
       en: "English",
@@ -157,7 +206,7 @@ export function getLanguageMeta(raw: string | null | undefined): LanguageMeta | 
   if (!label) return null;
 
   const meta = LANGUAGE_FLAGS[label] || {
-    flag: "🏳️",                  // fallback generic flag
+    flag: "🏳️", // fallback generic flag
     code: raw.toString().toUpperCase(),
   };
 
