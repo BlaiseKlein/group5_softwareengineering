@@ -1,8 +1,6 @@
 /**
- * Card component details for Likes and History.
- * Card data contains an image, a word, a language, details and id.
- * Pagination is available for large data sets.
- *
+ * Card component for Likes and History
+ * Shows image cards with word, language, translation and basic pagination
  * Paired with ImageFlipCard.tsx
  */
 import { useEffect, useState } from "react";
@@ -10,6 +8,7 @@ import CardMenu from "./CardMenu";
 import ImageFlipCard from "./ImageFlipCard";
 
 type Tab = "likes" | "history";
+
 type Item = {
   id: number;
   image_url: string;
@@ -28,22 +27,21 @@ type ApiResponse = {
 
 export default function GalleryPage() {
   const [tab, setTab] = useState<Tab>("history");
-
-
   const [history, setHistory] = useState<Item[]>([]);
   const [data, setData] = useState<Item[]>([]);
   const [selected, setSelected] = useState<Item | null>(null);
+
+  // pagination state
   const [page, setPage] = useState(1);
   const [canNext, setNext] = useState(false);
   const [canPrev, setPrev] = useState(false);
   const [totalPages, setTotalPages] = useState(1);
+
+  // error and loading flags
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const cardsPerRow = 3;
-  const maxRows = 2;
-  const cardsPerPage = cardsPerRow * maxRows; 
-
+  // fetch history for current page and tab
   const request_info = async () => {
     setErrorMsg(null);
     setLoading(true);
@@ -67,6 +65,7 @@ export default function GalleryPage() {
       const likesHistory: Item[] = [];
       const nonLikesHistory: Item[] = [];
 
+      // split into liked vs non-liked lists
       for (let i = 0; i < allHistory.length; i++) {
         const item = allHistory[i];
         if (item.is_favorite) {
@@ -76,18 +75,21 @@ export default function GalleryPage() {
         }
       }
 
+      // store full history (current page only)
       setHistory(allHistory);
 
+      // show data based on current tab
       setData(tab === "likes" ? likesHistory : nonLikesHistory);
 
-      // Pagination flags
+      // update pagination flags
       setNext(!!json.next_page_url);
       setPrev(!!json.previous_page_url);
       setTotalPages(json.max_page || 1);
     } catch (err) {
       console.error("Error fetching user history:", err);
       setErrorMsg("An issue occurred while loading your history.");
-      // On error, clear data so empty-state UI shows
+
+      // reset state on error
       setHistory([]);
       setData([]);
       setNext(false);
@@ -98,36 +100,43 @@ export default function GalleryPage() {
     }
   };
 
+  // re-fetch when tab or page changes
   useEffect(() => {
     request_info();
   }, [tab, page]);
 
+  // data to render for the grid
   const pageData = data;
+
+  // jump to first page
   const goFirst = () => setPage(1);
+
+  // jump to last page
   const goLast = () => setPage(totalPages);
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-6 space-y-6">
-      {/* menu */}
+      {/* tab menu (likes / history) */}
       <div className="text-center">
         <CardMenu
           tab={tab}
           onChange={(newTab) => {
             setTab(newTab);
-            setPage(1); 
+            setPage(1); // reset page when switching tab
           }}
         />
       </div>
 
-      {/* optional error banner */}
+      {/* error banner */}
       {errorMsg && (
         <div className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700 ring-1 ring-red-200">
           {errorMsg}
         </div>
       )}
 
-      {/* gallery */}
+      {/* gallery grid */}
       <div className="relative">
+        {/* overlay loading state */}
         {loading && (
           <div className="absolute inset-0 flex items-center justify-center bg-white/60 z-10">
             <p className="text-sm text-gray-500">Loading…</p>
@@ -135,6 +144,7 @@ export default function GalleryPage() {
         )}
 
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {/* empty state when no data */}
           {pageData.length === 0 && !loading ? (
             <div className="col-span-full py-12 text-center">
               <p className="text-gray-400 text-lg font-medium">
@@ -201,7 +211,7 @@ export default function GalleryPage() {
         )}
       </div>
 
-      {/* modal */}
+      {/* details modal when a card is selected */}
       {selected && (
         <div
           role="dialog"
@@ -209,7 +219,9 @@ export default function GalleryPage() {
           className="fixed inset-0 z-50 flex items-center justify-center"
           onClick={() => setSelected(null)}
         >
+          {/* backdrop */}
           <div className="absolute inset-0 bg-black/50" />
+          {/* modal content */}
           <div
             className="relative z-10 w-full max-w-md rounded-2xl bg-white p-6 shadow-xl"
             onClick={(e) => e.stopPropagation()}
@@ -227,6 +239,7 @@ export default function GalleryPage() {
                 <p className="text-sm text-gray-500">{selected.language}</p>
               </div>
             </div>
+
             <p className="mt-4 text-gray-700">
               {selected.word_translated || "No additional details."}
             </p>
