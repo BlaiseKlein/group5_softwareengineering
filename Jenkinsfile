@@ -16,7 +16,7 @@ pipeline {
 
         stage('Checkout') {
             steps {
-                checkout scm
+                git branch: 'main', url: 'https://github.com/Jyyunrin/group5_softwareengineering.git' scm
             }
         }
 
