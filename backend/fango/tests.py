@@ -84,7 +84,6 @@ class LogoutViewTest(TestCase):
 class UpdateUserInfoTest(TestCase):
     def setUp(self):
         self.client = APIClient()
-
         self.lang = Language.objects.create(code="fr", lang="French")
         self.user = AppUser.objects.create_user(
             email='email@test.com',
@@ -93,40 +92,29 @@ class UpdateUserInfoTest(TestCase):
             country='OldCountry',
             default_lang_id=self.lang
         )
-
         self.login_url = reverse('login')
         self.update_url = reverse('update_user_info')
         self.get_info_url = reverse('get_user_info')
-
-        login_payload = {
-            'email': 'email@test.com',
-            'password': 'password123'
-        }
-
-        login_response = self.client.post(self.login_url, login_payload, format='json')
-        self.assertEqual(login_response.status_code, 200)
-        self.assertIn('jwt', login_response.cookies)
-
-        self.token = login_response.cookies['jwt'].value
+        payload = {"id": self.user.id, "exp": datetime.datetime.utcnow() + datetime.timedelta(hours=1)}
+        self.token = jwt.encode(payload, SECRET_KEY, algorithm="HS256")
         self.client.cookies['jwt'] = self.token
 
-    def test_update_success(self):
-        payload = {
-            'new_username': 'Alice',
-            'new_country': 'Canada'
-        }
-
-        response = self.client.post(self.update_url, payload, format='json')
+    @patch("fango.middleware.JWTRedisMiddleware.redis_client.hgetall")
+    def test_update_success(self, mock_hgetall):
+        mock_hgetall.return_value = {"id": str(self.user.id), "email": self.user.email, "jwt": self.token}
+        payload = {"new_username": "Alice", "new_country": "Canada"}
+        response = self.client.post(self.update_url, payload, format="json")
         self.user.refresh_from_db()
-
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()['message'], 'Successfully updated information!')
         self.assertEqual(self.user.name, 'Alice')
         self.assertEqual(self.user.country, 'Canada')
 
-    def test_get_user_info(self):
+    @patch("fango.middleware.JWTRedisMiddleware.redis_client.hgetall")
+    def test_get_user_info(self, mock_hgetall):
+        mock_hgetall.return_value = {"id": str(self.user.id), "email": self.user.email, "jwt": self.token}
         response = self.client.get(self.get_info_url)
-
+        self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data['name'], 'OldName')
         self.assertEqual(response.data['country'], 'OldCountry')
 
@@ -160,21 +148,14 @@ class UserHistoryTestCase(TestCase):
         )
 
         self.get_info_url = reverse('get_user_history')
-        self.login_url = reverse('login')
+        payload = {"id": self.user.id, "exp": datetime.datetime.utcnow() + datetime.timedelta(hours=1)}
+        self.token = jwt.encode(payload, SECRET_KEY, algorithm="HS256")
+        self.client.cookies["jwt"] = self.token
 
-        login_payload = {
-            'email': 'test@test.com',
-            'password': 'password123'
-        }
+    @patch("fango.middleware.JWTRedisMiddleware.redis_client.hgetall")
+    def test_paginate_history(self, mock_hgetall):
+        mock_hgetall.return_value = {"id": str(self.user.id), "email": self.user.email, "jwt": self.token}
 
-        login_response = self.client.post(self.login_url, login_payload, format='json')
-        self.assertEqual(login_response.status_code, 200)
-        self.assertIn('jwt', login_response.cookies)
-
-        self.token = login_response.cookies['jwt'].value
-        self.client.cookies['jwt'] = self.token
-
-    def test_paginate_history(self):
         for i in range(9):
             UserHistory.objects.create(
                 user_id=self.user,
@@ -193,9 +174,8 @@ class UserHistoryTestCase(TestCase):
         previous_page_url = data["previous_page_url"]
         max_page = data["max_page"]
         
-        self.assertEqual(len(history_list), 6) # just this page has 5 
+        self.assertEqual(len(history_list), 6)
         self.assertEqual(max_page, 2)
-
         self.assertIn("page=2", next_page_url)
         self.assertTrue(previous_page_url in ('', None))
 
@@ -211,7 +191,10 @@ class UserHistoryTestCase(TestCase):
         self.assertIn("page=1", previous_page_url)
         self.assertTrue(next_page_url in ('', None))
 
-    def test_get_user_history(self):
+    @patch("fango.middleware.JWTRedisMiddleware.redis_client.hgetall")
+    def test_get_user_history(self, mock_hgetall):
+        mock_hgetall.return_value = {"id": str(self.user.id), "email": self.user.email, "jwt": self.token}
+
         response = self.client.get(self.get_info_url)
         self.assertEqual(response.status_code, 200)
 
@@ -227,8 +210,8 @@ class UserHistoryTestCase(TestCase):
         self.assertEqual(history_list[0]['word_translated'], self.history.translation_id.label_target)
         self.assertEqual(history_list[0]['image_url'], self.history.img_path)
         self.assertEqual(history_list[0]['is_favorite'], self.history.is_favorite)
+
         
-@override_settings(MIDDLEWARE=[])
 class AuthViewsTests(TestCase):
     def setUp(self):
         self.client = APIClient()
@@ -239,25 +222,17 @@ class AuthViewsTests(TestCase):
             name="Jane",
             default_lang_id=self.language
         )
+        payload = {"id": self.user.id, "exp": datetime.datetime.utcnow() + datetime.timedelta(hours=1)}
+        self.token = jwt.encode(payload, SECRET_KEY, algorithm="HS256")
+        self.client.cookies["jwt"] = self.token
         self.user_info_url = reverse('userlearninginfo')
-        self.login_url = reverse('login')
-        self.auth_check_url = reverse('auth')
+        self.auth_check_url = reverse("auth")
 
-        payload = {"id": self.user.id}
-        self.token = jwt.encode(payload, SECRET_KEY, algorithm='HS256')
-        self.client.cookies['jwt'] = self.token
-
-    @patch("fango.middleware.JWTRedisMiddleware.redis_client")
-    def test_user_learning_info_post(self, mock_redis):
-        mock_redis.hgetall.return_value = {
-            "id": str(self.user.id),
-            "email": self.user.email,
-            "jwt": "valid"  # not revoked
-        }
-
+    @patch("fango.middleware.JWTRedisMiddleware.redis_client.hgetall")
+    def test_user_learning_info_post(self, mock_hgetall):
+        mock_hgetall.return_value = {"id": str(self.user.id), "email": self.user.email, "jwt": self.token}
         data = {"defaultLang": self.language.lang, "difficulty": "hard"}
         response = self.client.post(self.user_info_url, data, format="json")
-
         self.user.refresh_from_db()
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data.get("message"), "success")
