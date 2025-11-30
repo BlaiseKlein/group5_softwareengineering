@@ -1,3 +1,7 @@
+/**
+ * Logout logic with robust error handling
+ */
+import React from "react";
 
 export default function Logout() {
     const attemptLogout = async () => {

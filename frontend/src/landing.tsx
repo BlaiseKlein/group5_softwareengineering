@@ -1,5 +1,5 @@
 /**
- * Landing page(homepage) after log-in
+ * Landing page(homepage) after log-in.
  */
 import './landing.css';
 import { useSearchParams, useNavigate } from "react-router-dom";
@@ -16,11 +16,11 @@ export default function Landing() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* keep the guide at the top level so it overlays the whole page */}
       {showGuide && <QuickGuide />}
 
-      {/* <main className="mx-auto w-full max-w-[1080px] px-5 pb-24">
-        <section className="pt-6">
+      <main className="mx-auto w-full max-w-[1080px] px-5 pb-24">
+        {/* <section className="pt-6"> */}
+          {/* 
           <h1
             className="text-4xl font-extrabold leading-tight tracking-tight"
             data-guide="welcome-title"
@@ -29,10 +29,8 @@ export default function Landing() {
             <span>Username!</span>
           </h1> */}
 
-        <main>
-          <section>
+        <section>
           <div className="mt-2 flex items-center justify-between text-sm text-gray-600">
-            {/* DO NOT nest a button inside a button!!! */}
             <button
               className="inline-flex items-center gap-1"
               onClick={() => setParams({ guide: "1" })}
@@ -78,7 +76,6 @@ export default function Landing() {
         </section>
 
         {/* Likes / Search history */}
-        {/* Prolly put only few examples on the main page */}
         <section className="mt-7" data-guide="likes-history">
           <div className="mt-4">
             <GalleryPage />
@@ -87,15 +84,11 @@ export default function Landing() {
       </main>
 
       {/* Bottom nav */}
-      <div
-        className="fixed inset-x-0 bottom-6 z-50 flex items-center justify-center"
-        data-guide="camera-fab"
-      >
+      <div className="fixed inset-x-0 bottom-6 z-50 flex items-center justify-center">
         <button
           className="grid h-24 w-24 place-items-center rounded-full"
           aria-label="Open Camera Translate"
         >
-
         </button>
       </div>
     </div>
