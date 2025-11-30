@@ -148,6 +148,15 @@ docker compose run django-web python manage.py makemigrations
 docker compose run django-web python manage.py migrate
 ```
 
+Also, run the following to insert the language mock data:
+```bash
+docker compose run -it django-web python manage.py shell
+
+exec(open("fango/insert_mock_languages.py").read())
+
+exit()
+```
+
 ## **Starting container after first time:**
 
 Start services in `.docker-compose.yml` in `-d` detached mode, which runs containers in background
