@@ -1,14 +1,16 @@
 import os
+from .models import AppUser, UserHistory, Language, Word, Translation, UserHistory, Quiz, QuizWord
+from .views import LoginView, LogoutView
+from .redis_client import redis_client
+from unittest.mock import patch
+from django.urls import reverse
+from django.utils import timezone
 from django.test import TestCase
-from .views import LoginView
-from .models import AppUser, UserHistory, Language, Word, Translation, UserHistory
+from django.test import override_settings
+from rest_framework.test import APIClient
 from rest_framework.exceptions import AuthenticationFailed
 import jwt
-from django.urls import reverse
-from unittest.mock import patch
-from .redis_client import redis_client
-from rest_framework.test import APIClient
-
+import datetime
 
 SECRET_KEY = os.getenv('TOKEN_SECRET', 'secret')
 
@@ -77,6 +79,7 @@ class LogoutViewTest(TestCase):
 
         mock_redis.hset.assert_called_once_with('user:1:session', 'jwt', 'revoked')
 
+@override_settings(MIDDLEWARE=[])
 class UpdateUserInfoTest(TestCase):
     def setUp(self):
         self.client = APIClient()
@@ -126,6 +129,7 @@ class UpdateUserInfoTest(TestCase):
         self.assertEqual(response.data['name'], 'OldName')
         self.assertEqual(response.data['country'], 'OldCountry')
 
+@override_settings(MIDDLEWARE=[])
 class UserHistoryTestCase(TestCase):
     def setUp(self):
         self.client = APIClient()
@@ -222,3 +226,122 @@ class UserHistoryTestCase(TestCase):
         self.assertEqual(history_list[0]['word_translated'], self.history.translation_id.label_target)
         self.assertEqual(history_list[0]['image_url'], self.history.img_path)
         self.assertEqual(history_list[0]['is_favorite'], self.history.is_favorite)
+        
+@override_settings(MIDDLEWARE=[])
+class AuthViewsTests(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.language = Language.objects.create(code="en", lang="English")
+        self.user = AppUser.objects.create_user(
+            email="jane@test.com",
+            password="123",
+            name="Jane",
+            default_lang_id=self.language
+        )
+        self.user_info_url = reverse('userlearninginfo')
+        self.login_url = reverse('login')
+        self.auth_check_url = reverse('auth')
+
+        payload = {"id": self.user.id}
+        self.token = jwt.encode(payload, SECRET_KEY, algorithm='HS256')
+        self.client.cookies['jwt'] = self.token
+
+    @patch("fango.middleware.JWTRedisMiddleware.redis_client")
+    def test_user_learning_info_post(self, mock_redis):
+        mock_redis.hgetall.return_value = {
+            "id": str(self.user.id),
+            "email": self.user.email,
+            "jwt": "valid"  # not revoked
+        }
+
+        data = {"defaultLang": self.language.lang, "difficulty": "hard"}
+        response = self.client.post(self.user_info_url, data, format="json")
+
+        self.user.refresh_from_db()
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data.get("message"), "success")
+        self.assertEqual(self.user.difficulty, "hard")
+        self.assertEqual(self.user.default_lang_id.lang, "English")
+        
+    @patch("fango.middleware.JWTRedisMiddleware.redis_client.hgetall")
+    def test_auth_check(self, mock_hgetall):
+        mock_hgetall.return_value = {
+            "id": str(self.user.id),
+            "email": self.user.email,
+            "jwt": "valid"
+        }
+        response = self.client.get(self.auth_check_url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["message"], "success")
+
+class JWTRedisMiddlewareTests(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.language = Language.objects.create(code="en", lang="English")
+        self.user = AppUser.objects.create_user(
+            email="test@test.com",
+            password="123",
+            name="Tester",
+            default_lang_id=self.language
+        )
+        payload = {"id": self.user.id}
+        self.token = jwt.encode(payload, SECRET_KEY, algorithm="HS256")
+        self.client.cookies["jwt"] = self.token
+
+        self.protected_url = reverse("userlearninginfo") 
+
+    @patch("fango.middleware.JWTRedisMiddleware.redis_client.hgetall")
+    def test_valid_token_and_session(self, mock_hgetall):
+        mock_hgetall.return_value = {
+            "id": str(self.user.id),
+            "email": self.user.email,
+            "jwt": self.token
+        }
+        response = self.client.get(self.protected_url)
+        self.assertEqual(response.status_code, 200)
+
+    @patch("fango.middleware.JWTRedisMiddleware.redis_client.hgetall")
+    def test_missing_session_returns_401(self, mock_hgetall):
+        mock_hgetall.return_value = {}
+        response = self.client.get(self.protected_url)
+        self.assertEqual(response.status_code, 401)
+        self.assertEqual(response.json(), {"detail": "Unauthorized"})
+
+    def test_missing_token_returns_401(self):
+        self.client.cookies.clear()
+        response = self.client.get(self.protected_url)
+        self.assertEqual(response.status_code, 401)
+        self.assertEqual(response.json(), {"detail": "Unauthenticated"})
+        
+class RateLimitMiddlewareTests(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.language = Language.objects.create(code="en", lang="English")
+        self.user = AppUser.objects.create_user(
+            email="test@test.com",
+            password="123",
+            name="Tester",
+            default_lang_id=self.language
+        )
+        payload = {"id": self.user.id}
+        self.token = jwt.encode(payload, SECRET_KEY, algorithm="HS256")
+        self.client.cookies["jwt"] = self.token
+
+        self.protected_url = reverse("userlearninginfo")
+        self.login_url = reverse("login")
+        self.register_url = "/api/register"
+
+    @patch("fango.middleware.JWTRedisMiddleware.redis_client.hgetall")
+    @patch("fango.middleware.RateLimitMiddleware.redis_client.incr", return_value=1)
+    @patch("fango.middleware.RateLimitMiddleware.redis_client.expire", return_value=None)
+    @patch("fango.middleware.RateLimitMiddleware.redis_client.ttl", return_value=60)
+    def test_rate_limit_under_limit(self, mock_ttl, mock_expire, mock_incr, mock_hgetall):
+        mock_hgetall.return_value = {
+            "id": str(self.user.id),
+            "email": self.user.email,
+            "jwt": "valid"
+        }
+
+        self.client.cookies["jwt"] = self.token
+        response = self.client.get(self.protected_url)
+        self.assertEqual(response.status_code, 200)
