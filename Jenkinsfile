@@ -8,6 +8,12 @@ pipeline {
 
     stages {
 
+        stage('Cleanup') {
+            steps {
+                sh 'rm -rf backend/media || true'
+            }
+        }
+
         stage('Checkout') {
             steps {
                 checkout scm 
