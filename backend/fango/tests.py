@@ -12,6 +12,13 @@ from rest_framework.exceptions import AuthenticationFailed
 import jwt
 import datetime
 import tempfile
+from django.test import override_settings
+from django.conf import settings
+from django.core.files.uploadedfile import SimpleUploadedFile
+import io
+from PIL import Image
+import json
+
 
 SECRET_KEY = os.getenv('TOKEN_SECRET', 'secret')
 
@@ -233,9 +240,15 @@ class AuthViewsTests(TestCase):
         self.user_info_url = reverse('userlearninginfo')
         self.auth_check_url = reverse("auth")
 
+    @patch("fango.middleware.JWTRedisMiddleware.redis_client.hgetall")
     @patch("fango.middleware.JWTRedisMiddleware.redis_client.hset")
-    def test_user_learning_info_post(self, mock_hset):
+    def test_user_learning_info_post(self, mock_hset, mock_hgetall):
         mock_hset.return_value = True
+        mock_hgetall.return_value = {
+            "id": str(self.user.id),
+            "email": self.user.email,
+            "jwt": self.client.cookies["jwt"]
+        }
 
         data = {"defaultLang": self.language.lang, "difficulty": "hard"}
         response = self.client.post(self.user_info_url, data, format="json")
@@ -246,7 +259,7 @@ class AuthViewsTests(TestCase):
         self.assertEqual(self.user.difficulty, "hard")
         self.assertEqual(self.user.default_lang_id.lang, "English")
 
-        
+    
     @patch("fango.middleware.JWTRedisMiddleware.redis_client.hgetall")
     def test_auth_check(self, mock_hgetall):
         mock_hgetall.return_value = {
@@ -329,19 +342,6 @@ class RateLimitMiddlewareTests(TestCase):
         self.client.cookies["jwt"] = self.token
         response = self.client.get(self.protected_url)
         self.assertEqual(response.status_code, 200)
-
-from django.test import override_settings
-from rest_framework.test import APIClient
-from django.conf import settings
-import jwt
-import datetime
-from django.core.files.uploadedfile import SimpleUploadedFile
-import io
-from PIL import Image
-from fango.redis_client import redis_client
-import json
-
-SECRET_KEY = os.getenv('TOKEN_SECRET', 'secret')
 
 class ImageTranslationTests(TestCase):
     def setUp(self):
